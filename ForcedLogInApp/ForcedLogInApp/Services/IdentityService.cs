@@ -1,56 +1,48 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
-using ForcedLogInApp.Helpers;
-using ForcedLogInApp.Models;
-using ForcedLogInApp.Views;
+
 using Microsoft.Identity.Client;
-using Windows.Storage;
+
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
+
+using ForcedLogInApp.Helpers;
+using ForcedLogInApp.Views;
 
 namespace ForcedLogInApp.Services
 {
     internal class IdentityService
     {
-        private const string UserSettingsKey = "IdentityUser";
-        private const string ClientId = "";
-        private const string Endpoint = "https://login.microsoftonline.com";
-        private const string GraphAPIEndpoint = "https://graph.microsoft.com/v1.0/";
-        private const string ApiServiceMe = "me/";
-        private const string ApiServiceMePhoto = "me/photo/$value";
+        private const string _clientId = "3b588882-c3f0-4f00-9047-933110e1d425";
+        private const string _loginEndpoint = "https://login.microsoftonline.com";
+        private readonly string[] _scopes = new string[] { "user.read" };
 
-        private IdentityAuthType _authType;
-        private string _tenantId;
-        private string[] _scopes;
-        private bool _integratedAuth = false;
+        private bool _integratedAuthAvailable;        
         private PublicClientApplication _client;
-        private User _user;
-        private BitmapImage _userPhoto;
 
-        internal AuthenticationResult AuthenticationResult { get; private set; }
+        internal AuthenticationResult AuthenticationResult { get; private set; }        
 
-        internal void Initialize(IdentityAuthType authType, string tenantId = null, bool integratedAuth = false)
+        internal void InitializeWithCommonAuthority()
         {
-            _authType = authType;
-            _tenantId = tenantId;
-            _scopes = new string[] { "user.read" };
-            _integratedAuth = integratedAuth;
+            // AAD and MSA accounts
+            _integratedAuthAvailable = false;
+            _client = new PublicClientApplication(_clientId, $"{_loginEndpoint}/common/");
+        }
 
-            if (_authType == IdentityAuthType.Tenant)
-            {
-                _client = new PublicClientApplication(ClientId, $"{Endpoint}/{_tenantId}/");
-            }
-            else
-            {
-                _client = new PublicClientApplication(ClientId, $"{Endpoint}/{_authType.ToString().ToLower()}/");
-            }
+        internal void InitializeWithOrganizationsAuthority(bool integratedAuth = false)
+        {
+            // All AAD and Integrated Auth
+            _integratedAuthAvailable = integratedAuth;
+            _client = new PublicClientApplication(_clientId, $"{_loginEndpoint}/organizations/");
+        }
+
+        internal void InitializeWithTenantAuthority(string tenantId, bool integratedAuth = false)
+        {
+            // Single domain AAD and Integrated Auth
+            _integratedAuthAvailable = integratedAuth;
+            _client = new PublicClientApplication(_clientId, $"{_loginEndpoint}/{tenantId}/");
         }
 
         internal async Task LaunchLoginAsync()
@@ -63,59 +55,6 @@ namespace ForcedLogInApp.Services
                 NavigationService.Frame = frame;
                 NavigationService.Navigate<LogInPage>();
             }
-            else
-            {
-                await GetUserInfoAsync();
-            }
-        }
-
-        internal async Task<LoginResult> LoginAsync()
-        {
-            var loginResult = new LoginResult();
-
-            if (!NetworkInterface.GetIsNetworkAvailable())
-            {
-                loginResult.HasNetwork = false;
-            }
-            else
-            {
-                var accounts = await _client.GetAccountsAsync();
-
-                try
-                {
-                    if (IsIntegratedAuthAvailable())
-                    {
-                        loginResult.Result = await _client.AcquireTokenByIntegratedWindowsAuthAsync(_scopes);
-                    }
-                    else
-                    {
-                        loginResult.Result = await _client.AcquireTokenAsync(_scopes, accounts.FirstOrDefault());
-                    }
-                }
-                catch (MsalServiceException)
-                {
-                    // Server fails
-                }
-                catch (Exception ex) when (ex is MsalUiRequiredException || ex is MsalClientException)
-                {
-                    try
-                    {
-                        loginResult.Result = await _client.AcquireTokenAsync(_scopes);
-                    }
-                    catch (MsalException)
-                    {
-                    }
-                }
-            }
-
-            AuthenticationResult = loginResult.Result;
-
-            if (loginResult.Success)
-            {
-                await GetUserInfoAsync();
-            }
-
-            return loginResult;
         }
 
         internal async Task LogoutAsync()
@@ -138,45 +77,51 @@ namespace ForcedLogInApp.Services
             }
         }
 
-        internal async Task<User> GetUserInfoAsync()
+        internal bool IsLoggedIn()
         {
-            if (_user == null)
-            {
-                var user = await ApplicationData.Current.LocalFolder.ReadAsync<User>(UserSettingsKey);
-                if (user == null || user.Mail != AuthenticationResult.Account.Username)
-                {
-                    var userJson = await GetStringContentWithToken($"{GraphAPIEndpoint}{ApiServiceMe}", AuthenticationResult.AccessToken);
-                    if (!string.IsNullOrEmpty(userJson))
-                    {
-                        user = await Json.ToObjectAsync<User>(userJson);
-                        await ApplicationData.Current.LocalFolder.SaveAsync(UserSettingsKey, user);
-                    }
-                }
-
-                _user = user;
-            }
-
-            return _user;
+            return AuthenticationResult != null;
         }
 
-        internal async Task<ImageSource> GetUserPhoto()
+        internal async Task<LoginResult> LoginAsync()
         {
-            if (_userPhoto == null)
+            var loginResult = new LoginResult();
+
+            if (!NetworkInterface.GetIsNetworkAvailable())
             {
-                var photoStream = await GetStreamContentWithToken($"{GraphAPIEndpoint}{ApiServiceMePhoto}", AuthenticationResult.AccessToken);
-                using (var randomAccessStream = photoStream?.AsRandomAccessStream())
+                loginResult.HasNetwork = false;
+            }
+            else
+            {
+                try
                 {
-                    _userPhoto = new BitmapImage();
-                    await _userPhoto.SetSourceAsync(randomAccessStream);
+                    if (_integratedAuthAvailable)
+                    {
+                        loginResult.Result = await _client.AcquireTokenByIntegratedWindowsAuthAsync(_scopes);
+                    }
+                    else
+                    {
+                        var accounts = await _client.GetAccountsAsync();
+                        loginResult.Result = await _client.AcquireTokenAsync(_scopes, accounts.FirstOrDefault());
+                    }
+                }
+                catch (MsalServiceException) { }
+                catch (Exception ex) when (ex is MsalUiRequiredException || ex is MsalClientException)
+                {
+                    try
+                    {
+                        loginResult.Result = await _client.AcquireTokenAsync(_scopes);
+                    }
+                    catch (MsalException) { }
                 }
             }
 
-            return _userPhoto;
+            await SaveLoginResultAsync(loginResult);
+            return loginResult;
         }
 
         private async Task<LoginResult> SilentLoginAsync()
         {
-            LoginResult loginResult = new LoginResult();
+            var loginResult = new LoginResult();
             try
             {
                 if (!NetworkInterface.GetIsNetworkAvailable())
@@ -185,59 +130,34 @@ namespace ForcedLogInApp.Services
                 }
                 else
                 {
-                    if (IsIntegratedAuthAvailable())
+                    if (_integratedAuthAvailable)
                     {
                         loginResult.Result = await _client.AcquireTokenByIntegratedWindowsAuthAsync(_scopes);
                     }
                     else
                     {
                         var accounts = await _client.GetAccountsAsync();
-                        var account = accounts.FirstOrDefault();
-                        if (account != null)
-                        {
-                            loginResult.Result = await _client.AcquireTokenSilentAsync(_scopes, account);
-                        }
+                        loginResult.Result = await _client.AcquireTokenSilentAsync(_scopes, accounts.FirstOrDefault());
                     }
                 }
             }
-            catch (Exception)
-            {
-            }
+            catch (Exception) { }
 
-            AuthenticationResult = loginResult.Result;
+            await SaveLoginResultAsync(loginResult);
             return loginResult;
         }
 
-        private bool IsIntegratedAuthAvailable()
+        private async Task SaveLoginResultAsync(LoginResult loginResult)
         {
-            return _integratedAuth && (_authType == IdentityAuthType.Organizations || _authType == IdentityAuthType.Tenant);
-        }
-
-        private async Task<string> GetStringContentWithToken(string url, string token)
-        {
-            var httpContent = await GetHttpContentWithToken(url, token);
-            return httpContent != null ? await httpContent.ReadAsStringAsync() : string.Empty;
-        }
-
-        private async Task<Stream> GetStreamContentWithToken(string url, string token)
-        {
-            var httpContent = await GetHttpContentWithToken(url, token);
-            return await httpContent?.ReadAsStreamAsync();
-        }
-
-        private async Task<HttpContent> GetHttpContentWithToken(string url, string token)
-        {
-            try
+            if (loginResult.Success)
             {
-                var httpClient = new HttpClient();
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var response = await httpClient.SendAsync(request);
-                return response.Content;
+                AuthenticationResult = loginResult.Result;
+                await Singleton<MicrosoftGraphService>.Instance.GetUserInfoAsync();
+                await Singleton<MicrosoftGraphService>.Instance.GetUserPhoto();
             }
-            catch (Exception)
+            else
             {
-                return null;
+                AuthenticationResult = null;
             }
         }
     }

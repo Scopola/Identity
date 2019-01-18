@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 using ForcedLogInApp.Activation;
 using ForcedLogInApp.Helpers;
-using ForcedLogInApp.Services;
 
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
@@ -50,13 +49,13 @@ namespace ForcedLogInApp.Services
                 }
             }
 
-            if (Singleton<IdentityService>.Instance.AuthenticationResult == null)
+            if (Singleton<IdentityService>.Instance.IsLoggedIn())
             {
-                lastActivationArgs = activationArgs;
+                await HandleActivationAsync(activationArgs);
             }
             else
             {
-                await HandleActivationAsync(activationArgs);
+                lastActivationArgs = activationArgs;
             }
 
             // Ensure the current window is active
@@ -95,7 +94,7 @@ namespace ForcedLogInApp.Services
         private async Task InitializeAsync()
         {
             await ThemeSelectorService.InitializeAsync();
-            Singleton<IdentityService>.Instance.Initialize(IdentityAuthType.Common);
+            Singleton<IdentityService>.Instance.InitializeWithCommonAuthority();
         }
 
         private async Task StartupAsync()

@@ -18,6 +18,8 @@ namespace ForcedLogInApp.ViewModels
     // TODO WTS: Add other settings as necessary. For help see https://github.com/Microsoft/WindowsTemplateStudio/blob/master/docs/pages/settings.md
     public class SettingsViewModel : Observable
     {
+        private MicrosoftGraphService _microsoftGraphService => Singleton<MicrosoftGraphService>.Instance;
+
         private ElementTheme _elementTheme = ThemeSelectorService.Theme;
 
         public ElementTheme ElementTheme
@@ -85,8 +87,8 @@ namespace ForcedLogInApp.ViewModels
         public async Task InitializeAsync()
         {
             VersionDescription = GetVersionDescription();
-            User = await Singleton<IdentityService>.Instance.GetUserInfoAsync();
-            UserPhoto = await Singleton<IdentityService>.Instance.GetUserPhoto();
+            User = await _microsoftGraphService.GetUserInfoAsync();
+            UserPhoto = await _microsoftGraphService.GetUserPhoto();
         }
 
         private string GetVersionDescription()
