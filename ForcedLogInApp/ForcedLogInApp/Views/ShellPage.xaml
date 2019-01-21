@@ -50,6 +50,7 @@
             -->
             <winui:NavigationViewItem x:Uid="Shell_Main" Icon="Document" helpers:NavHelper.NavigateTo="views:MainPage" />
             <winui:NavigationViewItem x:Uid="Shell_NotificationSample" Icon="Document" helpers:NavHelper.NavigateTo="views:NotificationSamplePage" />
+            <winui:NavigationViewItem x:Uid="Shell_SchemeActivationSample" Icon="Document" helpers:NavHelper.NavigateTo="views:SchemeActivationSamplePage" />
         </winui:NavigationView.MenuItems>
         <winui:NavigationView.PaneFooter>
             <Button

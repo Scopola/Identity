@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 using ForcedLogInApp.Activation;
 using ForcedLogInApp.Helpers;
-
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -16,17 +15,23 @@ namespace ForcedLogInApp.Services
     internal class ActivationService
     {
         private readonly App _app;
-        private readonly Lazy<UIElement> _shell;
         private readonly Type _defaultNavItem;
+        private Lazy<UIElement> _shell;
+
+        // Start #AddWithdIdentity
+        private object _lastActivationArgs;
+        private IdentityService _identityService => Singleton<IdentityService>.Instance;
+        // End
 
         public ActivationService(App app, Type defaultNavItem, Lazy<UIElement> shell = null)
         {
             _app = app;
             _shell = shell;
             _defaultNavItem = defaultNavItem;
+            // Start #AddWithdIdentity
+            _identityService.LoggedIn += OnLoggedIn;
+            // End
         }
-
-        private object lastActivationArgs;
 
         public async Task ActivateAsync(object activationArgs)
         {
@@ -39,24 +44,19 @@ namespace ForcedLogInApp.Services
                 // just ensure that the window is active
                 if (Window.Current.Content == null)
                 {
-                    await Singleton<IdentityService>.Instance.LaunchLoginAsync();
-
-                    if (Window.Current.Content == null)
-                    {
-                        // Create a Frame to act as the navigation context and navigate to the first page
-                        Window.Current.Content = _shell?.Value ?? new Frame();
-                    }
+                    // Create a Frame to act as the navigation context and navigate to the first page
+                    Window.Current.Content = _shell?.Value ?? new Frame();
                 }
             }
 
-            if (Singleton<IdentityService>.Instance.IsLoggedIn())
+            if (IsActivationEnabled())
             {
                 await HandleActivationAsync(activationArgs);
             }
-            else
-            {
-                lastActivationArgs = activationArgs;
-            }
+
+            // Start #AddWithdIdentity
+            _lastActivationArgs = activationArgs;
+            // End
 
             // Ensure the current window is active
             Window.Current.Activate();
@@ -65,13 +65,32 @@ namespace ForcedLogInApp.Services
             await StartupAsync();
         }
 
-        internal async Task ContinueAfterLoginAsync()
+        public void SetShell(Lazy<UIElement> shell)
         {
-            Window.Current.Content = _shell?.Value ?? new Frame();
-            await HandleActivationAsync(lastActivationArgs);
+            _shell = shell;
         }
 
-        internal async Task HandleActivationAsync(object activationArgs)
+        // Start #AddWithdIdentity
+        private async void OnLoggedIn(object sender, EventArgs e)
+        {
+            Window.Current.Content = _shell?.Value ?? new Frame();
+            await HandleActivationAsync(_lastActivationArgs);
+            _lastActivationArgs = null;
+        }
+        // End
+
+        private async Task InitializeAsync()
+        {
+            if (Window.Current.Content == null)
+            {
+                await ThemeSelectorService.InitializeAsync();
+                // Start #AddWithdIdentity
+                await _identityService.LoginWithCommonAuthorityAsync();
+                // End
+            }
+        }
+
+        private async Task HandleActivationAsync(object activationArgs)
         {
             var activationHandler = GetActivationHandlers()
                                                 .FirstOrDefault(h => h.CanHandle(activationArgs));
@@ -87,25 +106,33 @@ namespace ForcedLogInApp.Services
                 if (defaultHandler.CanHandle(activationArgs))
                 {
                     await defaultHandler.HandleAsync(activationArgs);
-                }                
+                }
             }
-        }
-
-        private async Task InitializeAsync()
-        {
-            await ThemeSelectorService.InitializeAsync();
-            Singleton<IdentityService>.Instance.InitializeWithCommonAuthority();
         }
 
         private async Task StartupAsync()
         {
             await ThemeSelectorService.SetRequestedThemeAsync();
+            // TODO WTS: This is a sample to demonstrate how to add a UserActivity. Please adapt and move this method call to where you consider convenient in your app.
+            await UserActivityService.AddSampleUserActivity();
         }
 
         private IEnumerable<ActivationHandler> GetActivationHandlers()
         {
             yield return Singleton<ToastNotificationsService>.Instance;
-            //yield return Singleton<IdentityService>.Instance;
+            yield return Singleton<SchemeActivationHandler>.Instance;
+        }
+
+        private bool IsActivationEnabled()
+        {
+            // Start#AddWithdIdentity
+            if (!_identityService.IsLoggedIn())
+            {
+                return false;
+            }
+            // End
+
+            return true;
         }
 
         private bool IsInteractive(object args)

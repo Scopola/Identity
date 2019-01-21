@@ -9,8 +9,10 @@
     <Grid
         x:Name="ContentArea"
         Margin="{StaticResource MediumLeftRightMargin}">
-        <Grid
-            Background="{ThemeResource SystemControlPageBackgroundChromeLowBrush}">
-        </Grid>
+        <StackPanel>
+            <Button
+                x:Uid="MainShowToastButton"
+                Command="{x:Bind ViewModel.ShowToastCommand}" />
+        </StackPanel>
     </Grid>
 </Page>

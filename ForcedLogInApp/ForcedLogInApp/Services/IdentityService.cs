@@ -22,30 +22,36 @@ namespace ForcedLogInApp.Services
         private bool _integratedAuthAvailable;        
         private PublicClientApplication _client;
 
-        internal AuthenticationResult AuthenticationResult { get; private set; }        
+        internal AuthenticationResult AuthenticationResult { get; private set; }
 
-        internal void InitializeWithCommonAuthority()
+        internal event EventHandler LoggedIn;
+        internal event EventHandler LoggedOut;        
+
+        internal async Task LoginWithCommonAuthorityAsync()
         {
             // AAD and MSA accounts
             _integratedAuthAvailable = false;
             _client = new PublicClientApplication(_clientId, $"{_loginEndpoint}/common/");
+            await LaunchLoginAsync();
         }
 
-        internal void InitializeWithOrganizationsAuthority(bool integratedAuth = false)
+        internal async Task LoginWithOrganizationsAuthorityAsync(bool integratedAuth = false)
         {
             // All AAD and Integrated Auth
             _integratedAuthAvailable = integratedAuth;
             _client = new PublicClientApplication(_clientId, $"{_loginEndpoint}/organizations/");
+            await LaunchLoginAsync();
         }
 
-        internal void InitializeWithTenantAuthority(string tenantId, bool integratedAuth = false)
+        internal async Task LoginWithTenantAuthority(string tenantId, bool integratedAuth = false)
         {
             // Single domain AAD and Integrated Auth
             _integratedAuthAvailable = integratedAuth;
             _client = new PublicClientApplication(_clientId, $"{_loginEndpoint}/{tenantId}/");
+            await LaunchLoginAsync();
         }
 
-        internal async Task LaunchLoginAsync()
+        private async Task LaunchLoginAsync()
         {
             var loginResult = await SilentLoginAsync();
             if (!loginResult.Success)
@@ -74,6 +80,7 @@ namespace ForcedLogInApp.Services
             finally
             {
                 AuthenticationResult = null;
+                LoggedOut?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -103,6 +110,8 @@ namespace ForcedLogInApp.Services
                         var accounts = await _client.GetAccountsAsync();
                         loginResult.Result = await _client.AcquireTokenAsync(_scopes, accounts.FirstOrDefault());
                     }
+
+                    LoggedIn?.Invoke(this, EventArgs.Empty);
                 }
                 catch (MsalServiceException) { }
                 catch (Exception ex) when (ex is MsalUiRequiredException || ex is MsalClientException)

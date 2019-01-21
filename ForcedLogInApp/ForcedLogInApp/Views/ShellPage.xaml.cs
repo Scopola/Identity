@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 using ForcedLogInApp.ViewModels;
 
 using Windows.UI.Xaml.Controls;

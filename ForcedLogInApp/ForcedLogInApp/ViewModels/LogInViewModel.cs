@@ -20,11 +20,6 @@ namespace ForcedLogInApp.ViewModels
         private async void OnLogin()
         {
             var loginResult = await Singleton<IdentityService>.Instance.LoginAsync();
-            if (loginResult.Success)
-            {
-                var app = App.Current as App;
-                await app.ActivationService.ContinueAfterLoginAsync();
-            }
         }
     }
 }

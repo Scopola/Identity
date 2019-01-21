@@ -193,4 +193,13 @@
   <data name="Settings_User.Text" xml:space="preserve">
     <value>User</value>
   </data>
+  <data name="MainShowToastButton.Content" xml:space="preserve">
+    <value>Show toast notification</value>
+  </data>
+  <data name="Shell_SchemeActivationSample.Content" xml:space="preserve">
+    <value>SchemeActivationSample</value>
+  </data>
+  <data name="SchemeActivationSamplePage_Description.Text" xml:space="preserve">
+    <value>This is a sample page that will show activation parameters if the app is activated from Deep Linking.</value>
+  </data>
 </root>

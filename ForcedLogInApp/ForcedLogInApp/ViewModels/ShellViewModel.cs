@@ -32,6 +32,8 @@ namespace ForcedLogInApp.ViewModels
         private ICommand _userProfileCommand;
         private ICommand _itemInvokedCommand;
         private Models.User _user;
+
+        private IdentityService _identityService => Singleton<IdentityService>.Instance;
         private MicrosoftGraphService _microsoftGraphService => Singleton<MicrosoftGraphService>.Instance;
 
         public bool IsBackEnabled
@@ -78,6 +80,14 @@ namespace ForcedLogInApp.ViewModels
             NavigationService.Frame = frame;
             NavigationService.Navigated += Frame_Navigated;
             _navigationView.BackRequested += OnBackRequested;
+            _identityService.LoggedOut += OnLoggedOut;
+        }
+
+        private void OnLoggedOut(object sender, EventArgs e)
+        {
+            NavigationService.Navigated -= Frame_Navigated;
+            _navigationView.BackRequested -= OnBackRequested;
+            _identityService.LoggedOut -= OnLoggedOut;
         }
 
         private async void OnLoaded()
