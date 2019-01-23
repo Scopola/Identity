@@ -42,12 +42,6 @@ namespace ForcedLogInApp.Services
                 // Initialize things like registering background task before the app is loaded
                 await InitializeAsync();
 
-                if (!_identityService.IsLoggedIn())
-                {
-                    Window.Current.Content = new Frame();
-                    NavigationService.Navigate<LogInPage>();
-                }
-
                 // Do not repeat app initialization when the Window already has content,
                 // just ensure that the window is active
                 if (Window.Current.Content == null)
@@ -73,13 +67,9 @@ namespace ForcedLogInApp.Services
             await StartupAsync();
         }
 
-        public void LogOut(Lazy<UIElement> shell)
+        public void SetShell(Lazy<UIElement> shell)
         {
             _shell = shell;
-            var frame = new Frame();
-            frame.Navigate(typeof(LogInPage));
-            NavigationService.Frame = frame;
-            Window.Current.Content = frame;
         }
 
         // Start #AddWithdIdentity
@@ -146,7 +136,7 @@ namespace ForcedLogInApp.Services
         {
             yield return Singleton<ToastNotificationsService>.Instance;
             yield return Singleton<SchemeActivationHandler>.Instance;
-        }        
+        }
 
         private bool IsInteractive(object args)
         {

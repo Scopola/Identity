@@ -72,6 +72,7 @@ namespace ForcedLogInApp.Services
             {
                 AuthenticationResult = null;
                 LoggedOut?.Invoke(this, EventArgs.Empty);
+                SetLoginPage();
             }
         }
 
@@ -151,7 +152,16 @@ namespace ForcedLogInApp.Services
             }
             catch (Exception)
             {
+                SetLoginPage();
             }
-        }        
+        }
+
+        private void SetLoginPage()
+        {
+            var frame = new Frame();
+            frame.Navigate(typeof(LogInPage));
+            NavigationService.Frame = frame;
+            Window.Current.Content = frame;            
+        }
     }
 }

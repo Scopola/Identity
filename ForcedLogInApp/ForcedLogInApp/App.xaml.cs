@@ -49,7 +49,7 @@ namespace ForcedLogInApp
         // Start #AddWithdIdentity
         private void OnLoggedOut(object sender, EventArgs e)
         {
-            ActivationService.LogOut(new Lazy<UIElement>(CreateShell));
+            ActivationService.SetShell(new Lazy<UIElement>(CreateShell));
         }
         // End
 
