@@ -14,8 +14,7 @@ using System.Net.NetworkInformation;
 namespace ForcedLogInApp.Services
 {
     internal class IdentityService
-    {
-        private const string _clientId = "";
+    {        
         private const string _loginEndpoint = "https://login.microsoftonline.com";
         private const string _commonAuthority = "common";
         private const string _organizationsAuthority = "organizations";
@@ -34,7 +33,7 @@ namespace ForcedLogInApp.Services
         {
             // AAD and MSA accounts
             _integratedAuthAvailable = false;
-            _client = new PublicClientApplication(_clientId, $"{_loginEndpoint}/{_commonAuthority}/");
+            _client = new PublicClientApplication(Consts.IdentityAppId, $"{_loginEndpoint}/{_commonAuthority}/");
             await SilentLoginAsync();
         }
 
@@ -42,7 +41,7 @@ namespace ForcedLogInApp.Services
         {
             // All AAD and Integrated Auth
             _integratedAuthAvailable = integratedAuth;
-            _client = new PublicClientApplication(_clientId, $"{_loginEndpoint}/{_organizationsAuthority}/");
+            _client = new PublicClientApplication(Consts.IdentityAppId, $"{_loginEndpoint}/{_organizationsAuthority}/");
             await SilentLoginAsync();
         }
 
@@ -50,7 +49,7 @@ namespace ForcedLogInApp.Services
         {
             // Single domain AAD and Integrated Auth
             _integratedAuthAvailable = integratedAuth;
-            _client = new PublicClientApplication(_clientId, $"{_loginEndpoint}/{tenantId}/");
+            _client = new PublicClientApplication(Consts.IdentityAppId, $"{_loginEndpoint}/{tenantId}/");
             await SilentLoginAsync();
         }
 
