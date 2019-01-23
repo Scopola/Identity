@@ -15,7 +15,7 @@ namespace ForcedLogInApp.Services
 {
     internal class IdentityService
     {
-        private const string _clientId = "3b588882-c3f0-4f00-9047-933110e1d425";
+        private const string _clientId = "";
         private const string _loginEndpoint = "https://login.microsoftonline.com";
         private const string _commonAuthority = "common";
         private const string _organizationsAuthority = "organizations";
