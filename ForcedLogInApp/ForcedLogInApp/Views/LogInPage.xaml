@@ -11,17 +11,22 @@
         Margin="{StaticResource MediumLeftRightMargin}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <TextBlock
             x:Uid="LogInPageTitle"
             Grid.Row="0"
             Style="{StaticResource TitleTextBlockStyle}" />
-        <Grid
-            Grid.Row="1">
-            <Button
-                x:Uid="LogInButton"
-                Command="{x:Bind ViewModel.LoginCommand}" />
-        </Grid>
+        <Button
+            Grid.Row="1"
+            x:Uid="LogInButton"
+            Margin="{StaticResource MediumTopMargin}"
+            Command="{x:Bind ViewModel.LoginCommand}" />
+        <TextBlock
+            Grid.Row="2"
+            Margin="{StaticResource MediumTopMargin}"
+            Text="{x:Bind ViewModel.Status, Mode=OneWay}"
+            Style="{StaticResource BodyTextBlockStyle}" />
     </Grid>
 </Page>

@@ -9,6 +9,7 @@ namespace ForcedLogInApp
 {
     public sealed partial class App : Application
     {
+        private IdentityService _identityService => Singleton<IdentityService>.Instance;
         private Lazy<ActivationService> _activationService;
 
         private ActivationService ActivationService
@@ -23,7 +24,7 @@ namespace ForcedLogInApp
             // Deferred execution until used. Check https://msdn.microsoft.com/library/dd642331(v=vs.110).aspx for further info on Lazy<T> class.
             _activationService = new Lazy<ActivationService>(CreateActivationService);
             // Start #AddWithdIdentity
-            Singleton<IdentityService>.Instance.LoggedOut += OnLoggedOut;
+            _identityService.LoggedOut += OnLoggedOut;
             // End
         }
 
@@ -48,7 +49,7 @@ namespace ForcedLogInApp
         // Start #AddWithdIdentity
         private void OnLoggedOut(object sender, EventArgs e)
         {
-            ActivationService.SetShell(new Lazy<UIElement>(CreateShell));
+            ActivationService.LogOut(new Lazy<UIElement>(CreateShell));
         }
         // End
 

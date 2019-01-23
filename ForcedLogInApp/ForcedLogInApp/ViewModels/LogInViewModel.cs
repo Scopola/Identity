@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net.NetworkInformation;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using ForcedLogInApp.Helpers;
 using ForcedLogInApp.Services;
@@ -9,9 +11,28 @@ namespace ForcedLogInApp.ViewModels
 {
     public class LogInViewModel : Observable
     {
-        private ICommand _loginCommand;
+        private IdentityService _identityService => Singleton<IdentityService>.Instance;
+        private string _status;
+        private bool _isBusy;
+        private RelayCommand _loginCommand;                
 
-        public ICommand LoginCommand => _loginCommand ?? (_loginCommand = new RelayCommand(OnLogin));
+        public string Status
+        {
+            get { return _status; }
+            set { Set(ref _status, value); }
+        }
+
+        public bool IsBusy
+        {
+            get { return _isBusy; }
+            set
+            {
+                Set(ref _isBusy, value);
+                LoginCommand.OnCanExecuteChanged();
+            }
+        }
+
+        public RelayCommand LoginCommand => _loginCommand ?? (_loginCommand = new RelayCommand(OnLogin, () => !IsBusy));
 
         public LogInViewModel()
         {
@@ -19,7 +40,21 @@ namespace ForcedLogInApp.ViewModels
 
         private async void OnLogin()
         {
-            var loginResult = await Singleton<IdentityService>.Instance.LoginAsync();
+            if (!NetworkInterface.GetIsNetworkAvailable())
+            {
+                Status = "StatusNoNetworkAvailable".GetLocalized();
+            }
+            else
+            {
+                IsBusy = true;
+                Status = string.Empty;
+                await _identityService.LoginAsync();
+                if (_identityService.AuthenticationResult == null)
+                {
+                    Status = "StatusLoginFails".GetLocalized();
+                }
+                IsBusy = false;
+            }
         }
     }
 }

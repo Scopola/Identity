@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using ForcedLogInApp.Activation;
 using ForcedLogInApp.Helpers;
+using ForcedLogInApp.Views;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -20,6 +21,7 @@ namespace ForcedLogInApp.Services
 
         // Start #AddWithdIdentity
         private object _lastActivationArgs;
+        private MicrosoftGraphService _microsoftGraphService => Singleton<MicrosoftGraphService>.Instance;
         private IdentityService _identityService => Singleton<IdentityService>.Instance;
         // End
 
@@ -39,6 +41,12 @@ namespace ForcedLogInApp.Services
             {
                 // Initialize things like registering background task before the app is loaded
                 await InitializeAsync();
+
+                if (!_identityService.IsLoggedIn())
+                {
+                    Window.Current.Content = new Frame();
+                    NavigationService.Navigate<LogInPage>();
+                }
 
                 // Do not repeat app initialization when the Window already has content,
                 // just ensure that the window is active
@@ -65,9 +73,13 @@ namespace ForcedLogInApp.Services
             await StartupAsync();
         }
 
-        public void SetShell(Lazy<UIElement> shell)
+        public void LogOut(Lazy<UIElement> shell)
         {
             _shell = shell;
+            var frame = new Frame();
+            frame.Navigate(typeof(LogInPage));
+            NavigationService.Frame = frame;
+            Window.Current.Content = frame;
         }
 
         // Start #AddWithdIdentity
@@ -85,6 +97,7 @@ namespace ForcedLogInApp.Services
             {
                 await ThemeSelectorService.InitializeAsync();
                 // Start #AddWithdIdentity
+                _microsoftGraphService.Initialize();
                 await _identityService.LoginWithCommonAuthorityAsync();
                 // End
             }
@@ -110,19 +123,6 @@ namespace ForcedLogInApp.Services
             }
         }
 
-        private async Task StartupAsync()
-        {
-            await ThemeSelectorService.SetRequestedThemeAsync();
-            // TODO WTS: This is a sample to demonstrate how to add a UserActivity. Please adapt and move this method call to where you consider convenient in your app.
-            await UserActivityService.AddSampleUserActivity();
-        }
-
-        private IEnumerable<ActivationHandler> GetActivationHandlers()
-        {
-            yield return Singleton<ToastNotificationsService>.Instance;
-            yield return Singleton<SchemeActivationHandler>.Instance;
-        }
-
         private bool IsActivationEnabled()
         {
             // Start#AddWithdIdentity
@@ -134,6 +134,19 @@ namespace ForcedLogInApp.Services
 
             return true;
         }
+
+        private async Task StartupAsync()
+        {
+            await ThemeSelectorService.SetRequestedThemeAsync();
+            // TODO WTS: This is a sample to demonstrate how to add a UserActivity. Please adapt and move this method call to where you consider convenient in your app.
+            await UserActivityService.AddSampleUserActivity();
+        }
+
+        private IEnumerable<ActivationHandler> GetActivationHandlers()
+        {
+            yield return Singleton<ToastNotificationsService>.Instance;
+            yield return Singleton<SchemeActivationHandler>.Instance;
+        }        
 
         private bool IsInteractive(object args)
         {

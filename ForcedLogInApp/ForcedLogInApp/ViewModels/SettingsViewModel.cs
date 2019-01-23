@@ -19,6 +19,7 @@ namespace ForcedLogInApp.ViewModels
     public class SettingsViewModel : Observable
     {
         private MicrosoftGraphService _microsoftGraphService => Singleton<MicrosoftGraphService>.Instance;
+        private IdentityService _identityService => Singleton<IdentityService>.Instance;
 
         private ElementTheme _elementTheme = ThemeSelectorService.Theme;
 
@@ -103,11 +104,7 @@ namespace ForcedLogInApp.ViewModels
 
         private async void OnLogout()
         {
-            await Singleton<IdentityService>.Instance.LogoutAsync();
-            var frame = new Frame();
-            frame.Navigate(typeof(LogInPage));
-            NavigationService.Frame = frame;
-            Window.Current.Content = frame;
+            await _identityService.LogoutAsync();
         }
     }
 }
