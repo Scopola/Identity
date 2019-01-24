@@ -222,20 +222,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Activation\SchemeActivationConfig.cs" />
-    <Compile Include="Services\ToastNotificationsService.cs" />
-    <Compile Include="Services\ToastNotificationsService.Samples.cs" />
     <Compile Include="Services\UserActivityData.cs" />
     <Compile Include="Services\UserActivityService.cs" />
     <Compile Include="Services\UserActivityService.Sample.cs" />
-    <Compile Include="ViewModels\NotificationSampleViewModel.cs" />
     <Compile Include="ViewModels\SchemeActivationSampleViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Views\NotificationSamplePage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Views\SchemeActivationSamplePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -246,9 +239,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Views\NotificationSamplePage.xaml.cs">
-      <DependentUpon>NotificationSamplePage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\SchemeActivationSamplePage.xaml.cs">
       <DependentUpon>SchemeActivationSamplePage.xaml</DependentUpon>
     </Compile>

@@ -186,10 +186,6 @@
   <data name="LogInButton.Content" xml:space="preserve">
     <value>Click to log in</value>
   </data>
-  <data name="Shell_NotificationSample.Content" xml:space="preserve">
-    <value>NotificationSample</value>
-    <comment>Navigation view item name for NotificationSample</comment>
-  </data>
   <data name="Settings_User.Text" xml:space="preserve">
     <value>User</value>
   </data>

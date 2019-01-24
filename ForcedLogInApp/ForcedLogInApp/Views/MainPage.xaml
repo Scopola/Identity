@@ -9,38 +9,10 @@
     <Grid
         x:Name="ContentArea"
         Margin="{StaticResource MediumLeftRightMargin}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <StackPanel>
-            <Button
-                x:Uid="MainShowToastButton"
-                Command="{x:Bind ViewModel.ShowToastCommand}" />
-            <Button
-                x:Uid="MainUpdateInfoButton"
-                Margin="{StaticResource MediumTopMargin}"
-                Command="{x:Bind ViewModel.UpdateInfoCommand}" />
-            <Button
-                x:Uid="MainUpdateUserInfoButton"
-                Margin="{StaticResource MediumTopMargin}"
-                Command="{x:Bind ViewModel.UpdateUserInfoCommand}" />
-            <Button
-                x:Uid="MainSilentLoginButton"
-                Margin="{StaticResource MediumTopMargin}"
-                Command="{x:Bind ViewModel.SilentLoginCommand}" />
-        </StackPanel>
-        <ListView
-            Grid.Row="1"
-            Margin="{StaticResource MediumTopMargin}"
-            ItemsSource="{x:Bind ViewModel.AuthenticationResult}">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock
-                        Text="{Binding}"
-                        Margin="{StaticResource SmallTopMargin}" />
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+        <Grid
+            Background="{ThemeResource SystemControlPageBackgroundChromeLowBrush}">
+            <!--The SystemControlPageBackgroundChromeLowBrush background represents where you should place your content. 
+                Place your content here.-->
+        </Grid>
     </Grid>
 </Page>
