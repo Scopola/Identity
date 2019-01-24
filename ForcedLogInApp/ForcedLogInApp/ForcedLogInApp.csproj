@@ -135,9 +135,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\ResourceExtensions.cs" />
-    <Compile Include="Helpers\Singleton.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\ForcedLogInApp.Core\ForcedLogInApp.Core.csproj">
+      <Project>{bb88e03a-d955-41ae-bdec-6bea98a82d92}</Project>
+      <Name>ForcedLogInApp.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />

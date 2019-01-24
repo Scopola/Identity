@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-namespace ForcedLogInApp.Helpers
+namespace ForcedLogInApp.Core.Helpers
 {
-    internal static class Singleton<T>
+    public static class Singleton<T>
         where T : new()
     {
         private static ConcurrentDictionary<Type, T> _instances = new ConcurrentDictionary<Type, T>();

@@ -16,6 +16,7 @@ using Windows.UI.Xaml.Navigation;
 
 using WinUI = Microsoft.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
+using ForcedLogInApp.Core.Helpers;
 
 namespace ForcedLogInApp.ViewModels
 {

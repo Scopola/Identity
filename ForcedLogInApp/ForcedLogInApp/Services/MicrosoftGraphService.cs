@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using ForcedLogInApp.Core.Helpers;
 using ForcedLogInApp.Helpers;
 using ForcedLogInApp.Models;
 using Windows.Storage;

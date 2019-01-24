@@ -2,6 +2,7 @@
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ForcedLogInApp.Core.Helpers;
 using ForcedLogInApp.Helpers;
 using ForcedLogInApp.Services;
 using ForcedLogInApp.Views;

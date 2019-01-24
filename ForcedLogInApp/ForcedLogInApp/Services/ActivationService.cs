@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using ForcedLogInApp.Activation;
+using ForcedLogInApp.Core.Helpers;
 using ForcedLogInApp.Helpers;
 using ForcedLogInApp.Views;
 using Windows.ApplicationModel.Activation;
