@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 
 using ForcedLogInApp.Helpers;
-using Models = ForcedLogInApp.Models;
+using Models = ForcedLogInApp.Core.Models;
 using ForcedLogInApp.Services;
 using ForcedLogInApp.Views;
 using Windows.System;
