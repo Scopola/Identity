@@ -41,7 +41,7 @@ namespace ForcedLogInApp.Services
                 var silentLoginSuccess = await _identityService.LoginWithCommonAuthorityAsync();
                 if (!silentLoginSuccess)
                 {
-                    RedirectLoginPage();
+                    await RedirectLoginPageAsync();
                 }
 
                 // Do not repeat app initialization when the Window already has content,
@@ -75,17 +75,19 @@ namespace ForcedLogInApp.Services
             _shell = shell;
         }
 
-        public void RedirectLoginPage()
+        public async Task RedirectLoginPageAsync()
         {
             var frame = new Frame();
-            frame.Navigate(typeof(LogInPage));
             NavigationService.Frame = frame;
             Window.Current.Content = frame;
+            await ThemeSelectorService.SetRequestedThemeAsync();
+            NavigationService.Navigate<LogInPage>();
         }
 
         private async void OnLoggedIn(object sender, EventArgs e)
         {
             Window.Current.Content = _shell?.Value ?? new Frame();
+            await ThemeSelectorService.SetRequestedThemeAsync();
             await HandleActivationAsync(_lastActivationArgs);
             _lastActivationArgs = null;
         }

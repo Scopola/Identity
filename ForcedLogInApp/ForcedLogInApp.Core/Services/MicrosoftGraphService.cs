@@ -35,7 +35,7 @@ namespace ForcedLogInApp.Core.Services
         public async Task<Stream> GetUserPhoto(string accessToken)
         {
             var httpContent = await GetDataAsync($"{_graphAPIEndpoint}{_apiServiceMePhoto}", accessToken);
-            return await httpContent?.ReadAsStreamAsync();
+            return httpContent == null ? null : await httpContent?.ReadAsStreamAsync();
         }
 
         private async Task<HttpContent> GetDataAsync(string url, string accessToken)

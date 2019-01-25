@@ -45,10 +45,10 @@ namespace ForcedLogInApp
             return new ActivationService(this, typeof(Views.MainPage), new Lazy<UIElement>(CreateShell));
         }
         
-        private void OnLoggedOut(object sender, EventArgs e)
+        private async void OnLoggedOut(object sender, EventArgs e)
         {
             ActivationService.SetShell(new Lazy<UIElement>(CreateShell));
-            ActivationService.RedirectLoginPage();
+            await ActivationService.RedirectLoginPageAsync();
         }
 
         private UIElement CreateShell()
