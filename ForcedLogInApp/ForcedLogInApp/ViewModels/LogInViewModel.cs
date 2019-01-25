@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Net.NetworkInformation;
-using System.Threading.Tasks;
-using System.Windows.Input;
 using ForcedLogInApp.Core.Helpers;
 using ForcedLogInApp.Helpers;
 using ForcedLogInApp.Services;
-using ForcedLogInApp.Views;
-using Windows.UI.Xaml;
 
 namespace ForcedLogInApp.ViewModels
 {
@@ -15,7 +11,7 @@ namespace ForcedLogInApp.ViewModels
         private IdentityService _identityService => Singleton<IdentityService>.Instance;
         private string _status;
         private bool _isBusy;
-        private RelayCommand _loginCommand;                
+        private RelayCommand _loginCommand;
 
         public string Status
         {
@@ -41,20 +37,23 @@ namespace ForcedLogInApp.ViewModels
 
         private async void OnLogin()
         {
-            if (!NetworkInterface.GetIsNetworkAvailable())
+            IsBusy = true;
+            Status = string.Empty;
+            var loginResult = await _identityService.LoginAsync();
+            Status = GetStatusMessage(loginResult);
+            IsBusy = false;
+        }
+
+        private string GetStatusMessage(LoginResultType loginResult)
+        {
+            switch (loginResult)
             {
-                Status = "StatusNoNetworkAvailable".GetLocalized();
-            }
-            else
-            {
-                IsBusy = true;
-                Status = string.Empty;
-                await _identityService.LoginAsync();
-                if (_identityService.AuthenticationResult == null)
-                {
-                    Status = "StatusLoginFails".GetLocalized();
-                }
-                IsBusy = false;
+                case LoginResultType.NoNetworkAvailable:
+                    return "StatusNoNetworkAvailable".GetLocalized();                    
+                case LoginResultType.UnknownError:
+                    return "StatusLoginFails".GetLocalized();                    
+                default:
+                    return string.Empty;
             }
         }
     }

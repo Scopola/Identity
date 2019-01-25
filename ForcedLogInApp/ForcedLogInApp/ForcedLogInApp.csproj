@@ -101,6 +101,7 @@
     <Compile Include="Helpers\AuthenticationResultExtensions.cs" />
     <Compile Include="Helpers\Consts.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />
+    <Compile Include="Helpers\LoginResultType.cs" />
     <Compile Include="Services\ActivationService.cs" />
     <Compile Include="Activation\DefaultLaunchActivationHandler.cs" />
   </ItemGroup>

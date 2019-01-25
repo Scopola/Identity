@@ -51,7 +51,8 @@ namespace ForcedLogInApp
         private void OnLoggedOut(object sender, EventArgs e)
         {
             ActivationService.SetShell(new Lazy<UIElement>(CreateShell));
-        }
+            ActivationService.RedirectLoginPage();
+        }        
         // End
 
         private UIElement CreateShell()

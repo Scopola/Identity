@@ -21,7 +21,9 @@ namespace ForcedLogInApp.Core.Services
         public async Task<User> GetUserInfoAsync(string accessToken)
         {
             User user = null;
-            var userData = await GetStringContentWithTokenAsync($"{_graphAPIEndpoint}{_apiServiceMe}", accessToken);
+            var httpContent = await GetDataAsync($"{_graphAPIEndpoint}{_apiServiceMe}", accessToken);
+
+            var userData = await httpContent?.ReadAsStringAsync();
             if (!string.IsNullOrEmpty(userData))
             {
                 user = await Json.ToObjectAsync<User>(userData);
@@ -32,23 +34,11 @@ namespace ForcedLogInApp.Core.Services
 
         public async Task<Stream> GetUserPhoto(string accessToken)
         {
-            return await GetStreamContentWithTokenAsync($"{_graphAPIEndpoint}{_apiServiceMePhoto}", accessToken);
-        }
-
-
-        private async Task<string> GetStringContentWithTokenAsync(string url, string accessToken)
-        {
-            var httpContent = await GetHttpContentWithTokenAsync(url, accessToken);
-            return httpContent != null ? await httpContent.ReadAsStringAsync() : string.Empty;
-        }
-
-        private async Task<Stream> GetStreamContentWithTokenAsync(string url, string accessToken)
-        {
-            var httpContent = await GetHttpContentWithTokenAsync(url, accessToken);
+            var httpContent = await GetDataAsync($"{_graphAPIEndpoint}{_apiServiceMePhoto}", accessToken);
             return await httpContent?.ReadAsStreamAsync();
         }
 
-        private async Task<HttpContent> GetHttpContentWithTokenAsync(string url, string accessToken)
+        private async Task<HttpContent> GetDataAsync(string url, string accessToken)
         {
             try
             {
@@ -57,7 +47,12 @@ namespace ForcedLogInApp.Core.Services
                     var request = new HttpRequestMessage(HttpMethod.Get, url);
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
                     var response = await httpClient.SendAsync(request);
-                    return response.Content;
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return response.Content;
+                    }
+
+                    return null;
                 }
             }
             catch (Exception)

@@ -1,20 +1,14 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
-
-using Microsoft.Identity.Client;
-
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-
-using ForcedLogInApp.Helpers;
-using ForcedLogInApp.Views;
 using System.Net.NetworkInformation;
+using System.Threading.Tasks;
+using ForcedLogInApp.Helpers;
+using Microsoft.Identity.Client;
 
 namespace ForcedLogInApp.Services
 {
     internal class IdentityService
-    {        
+    {
         private const string _loginEndpoint = "https://login.microsoftonline.com";
         private const string _commonAuthority = "common";
         private const string _organizationsAuthority = "organizations";
@@ -22,35 +16,33 @@ namespace ForcedLogInApp.Services
 
         private bool _integratedAuthAvailable;
         private PublicClientApplication _client;
-
-        internal AuthenticationResult AuthenticationResult { get; private set; }
+        private AuthenticationResult _authenticationResult;
 
         internal event EventHandler LoggedIn;
         internal event EventHandler LoggedOut;
-        internal event EventHandler AuthenticationAvailable;
 
-        internal async Task LoginWithCommonAuthorityAsync()
+        internal async Task<bool> LoginWithCommonAuthorityAsync()
         {
             // AAD and MSA accounts
             _integratedAuthAvailable = false;
             _client = new PublicClientApplication(Consts.IdentityAppId, $"{_loginEndpoint}/{_commonAuthority}/");
-            await SilentLoginAsync();
+            return await SilentLoginAsync();
         }
 
-        internal async Task LoginWithOrganizationsAuthorityAsync(bool integratedAuth = false)
+        internal async Task<bool> LoginWithOrganizationsAuthorityAsync(bool integratedAuth = false)
         {
             // All AAD and Integrated Auth
             _integratedAuthAvailable = integratedAuth;
             _client = new PublicClientApplication(Consts.IdentityAppId, $"{_loginEndpoint}/{_organizationsAuthority}/");
-            await SilentLoginAsync();
+            return await SilentLoginAsync();
         }
 
-        internal async Task LoginWithTenantAuthority(string tenantId, bool integratedAuth = false)
+        internal async Task<bool> LoginWithTenantAuthority(string tenantId, bool integratedAuth = false)
         {
             // Single domain AAD and Integrated Auth
             _integratedAuthAvailable = integratedAuth;
             _client = new PublicClientApplication(Consts.IdentityAppId, $"{_loginEndpoint}/{tenantId}/");
-            await SilentLoginAsync();
+            return await SilentLoginAsync();
         }
 
         internal async Task LogoutAsync()
@@ -69,32 +61,82 @@ namespace ForcedLogInApp.Services
             }
             finally
             {
-                AuthenticationResult = null;
+                _authenticationResult = null;
                 LoggedOut?.Invoke(this, EventArgs.Empty);
-                SetLoginPage();
             }
         }
 
         internal bool IsLoggedIn()
         {
-            return AuthenticationResult != null;
+            return _authenticationResult != null;
         }
 
         internal async Task<string> GetAccessTokenAsync()
         {
-            if (AuthenticationResult.IsAccessTokenExpired())
+            if (!_authenticationResult.IsAccessTokenExpired())
             {
-                await SilentLoginAsync();
+                return _authenticationResult.AccessToken;
             }
 
-            return AuthenticationResult.AccessToken;
+            var loginSuccess = await SilentLoginAsync();
+            if (loginSuccess)
+            {
+                return _authenticationResult.AccessToken;
+            }
+
+            _authenticationResult = null;
+            LoggedOut?.Invoke(this, EventArgs.Empty);
+            return string.Empty;
         }
 
-        internal async Task LoginAsync()
+        internal async Task<LoginResultType> LoginAsync()
         {
+            if (!NetworkInterface.GetIsNetworkAvailable())
+            {
+                return LoginResultType.NoNetworkAvailable;
+            }
+
             AuthenticationResult result = null;
             try
             {
+                var accounts = await _client.GetAccountsAsync();
+                var firstAccount = accounts.FirstOrDefault();
+                if (firstAccount != null)
+                {
+                    result = await _client.AcquireTokenAsync(_scopes, firstAccount);
+                }
+                else
+                {
+                    result = await _client.AcquireTokenAsync(_scopes);
+                }
+                _authenticationResult = result;
+                LoggedIn?.Invoke(this, EventArgs.Empty);
+                return LoginResultType.Success;
+            }
+            catch (MsalClientException ex)
+            {
+                if (ex.ErrorCode == "authentication_canceled")
+                {
+                    return LoginResultType.CancelledByUser;
+                }
+
+                return LoginResultType.UnknownError;
+            }
+            catch (Exception)
+            {
+                return LoginResultType.UnknownError;
+            }
+        }
+
+        internal async Task<bool> SilentLoginAsync()
+        {
+            if (!NetworkInterface.GetIsNetworkAvailable())
+            {
+                return false;
+            }
+            try
+            {
+                AuthenticationResult result = null;
                 if (_integratedAuthAvailable)
                 {
                     result = await _client.AcquireTokenByIntegratedWindowsAuthAsync(_scopes);
@@ -102,65 +144,16 @@ namespace ForcedLogInApp.Services
                 else
                 {
                     var accounts = await _client.GetAccountsAsync();
-                    result = await _client.AcquireTokenAsync(_scopes, accounts.FirstOrDefault());
+                    result = await _client.AcquireTokenSilentAsync(_scopes, accounts.FirstOrDefault());
                 }
-            }
-            catch (MsalServiceException) { }
-            catch (Exception ex) when (ex is MsalUiRequiredException || ex is MsalClientException)
-            {
-                try
-                {
-                    result = await _client.AcquireTokenAsync(_scopes);
-                }
-                catch (MsalException) { }
-            }
-            finally
-            {
-                AuthenticationResult = result;
-                if (IsLoggedIn())
-                {
-                    AuthenticationAvailable?.Invoke(this, EventArgs.Empty);
-                    LoggedIn?.Invoke(this, EventArgs.Empty);
-                }
-            }
-        }        
 
-        internal async Task SilentLoginAsync()
-        {            
-            try
-            {
-                AuthenticationResult result = null;
-                if (NetworkInterface.GetIsNetworkAvailable())
-                {
-                    if (_integratedAuthAvailable)
-                    {
-                        result = await _client.AcquireTokenByIntegratedWindowsAuthAsync(_scopes);
-                    }
-                    else
-                    {
-                        var accounts = await _client.GetAccountsAsync();
-                        result = await _client.AcquireTokenSilentAsync(_scopes, accounts.FirstOrDefault());
-                    }
-
-                    AuthenticationResult = result;
-                    if (IsLoggedIn())
-                    {
-                        AuthenticationAvailable?.Invoke(this, EventArgs.Empty);
-                    }
-                }
+                _authenticationResult = result;
+                return true;
             }
             catch (Exception)
             {
-                SetLoginPage();
+                return false;
             }
-        }
-
-        private void SetLoginPage()
-        {
-            var frame = new Frame();
-            frame.Navigate(typeof(LogInPage));
-            NavigationService.Frame = frame;
-            Window.Current.Content = frame;            
         }
     }
 }

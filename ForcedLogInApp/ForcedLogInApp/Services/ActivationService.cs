@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ForcedLogInApp.Activation;
 using ForcedLogInApp.Core.Helpers;
 using ForcedLogInApp.Core.Services;
+using ForcedLogInApp.Views;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -41,6 +42,12 @@ namespace ForcedLogInApp.Services
                 // Initialize things like registering background task before the app is loaded
                 await InitializeAsync();
 
+                var silentLoginSuccess = await _identityService.LoginWithCommonAuthorityAsync();
+                if (!silentLoginSuccess)
+                {
+                    RedirectLoginPage();
+                }
+
                 // Do not repeat app initialization when the Window already has content,
                 // just ensure that the window is active
                 if (Window.Current.Content == null)
@@ -48,9 +55,9 @@ namespace ForcedLogInApp.Services
                     // Create a Frame to act as the navigation context and navigate to the first page
                     Window.Current.Content = _shell?.Value ?? new Frame();
                 }
-            }
+            }            
 
-            if (IsActivationEnabled())
+            if (_identityService.IsLoggedIn())
             {
                 await HandleActivationAsync(activationArgs);
             }
@@ -59,16 +66,27 @@ namespace ForcedLogInApp.Services
             _lastActivationArgs = activationArgs;
             // End
 
-            // Ensure the current window is active
-            Window.Current.Activate();
+            if (IsInteractive(activationArgs))
+            {
+                // Ensure the current window is active
+                Window.Current.Activate();
 
-            // Tasks after activation
-            await StartupAsync();
+                // Tasks after activation
+                await StartupAsync();
+            }
         }
 
         public void SetShell(Lazy<UIElement> shell)
         {
             _shell = shell;
+        }
+
+        public void RedirectLoginPage()
+        {
+            var frame = new Frame();
+            frame.Navigate(typeof(LogInPage));
+            NavigationService.Frame = frame;
+            Window.Current.Content = frame;
         }
 
         // Start #AddWithdIdentity
@@ -84,10 +102,7 @@ namespace ForcedLogInApp.Services
         {
             if (Window.Current.Content == null)
             {
-                await ThemeSelectorService.InitializeAsync();
-                // Start #AddWithdIdentity
-                await _identityService.LoginWithCommonAuthorityAsync();
-                // End
+                await ThemeSelectorService.InitializeAsync();                
             }
         }
 
@@ -109,19 +124,7 @@ namespace ForcedLogInApp.Services
                     await defaultHandler.HandleAsync(activationArgs);
                 }
             }
-        }
-
-        private bool IsActivationEnabled()
-        {
-            // Start#AddWithdIdentity
-            if (!_identityService.IsLoggedIn())
-            {
-                return false;
-            }
-            // End
-
-            return true;
-        }
+        }        
 
         private async Task StartupAsync()
         {

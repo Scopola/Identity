@@ -36,6 +36,11 @@ namespace ForcedLogInApp.Services
         public async Task<UserViewModel> GetUserFromGraphApiAsync()
         {
             var accessToken = await _identityService.GetAccessTokenAsync();
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return null;
+            }
+
             var userData = await _microsoftGraphService.GetUserInfoAsync(accessToken);
             if (userData != null)
             {

@@ -43,9 +43,9 @@ namespace ForcedLogInApp.ViewModels
 
         public void Update(UserViewModel freshData)
         {
-            Name = freshData.Name;
-            Mail = freshData.Mail;
-            Photo = freshData.Photo;
+            Name = freshData?.Name;
+            Mail = freshData?.Mail;
+            Photo = freshData?.Photo;
         }
     }
 }
