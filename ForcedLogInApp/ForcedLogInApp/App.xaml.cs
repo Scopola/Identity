@@ -23,10 +23,8 @@ namespace ForcedLogInApp
             InitializeComponent();
 
             // Deferred execution until used. Check https://msdn.microsoft.com/library/dd642331(v=vs.110).aspx for further info on Lazy<T> class.
-            _activationService = new Lazy<ActivationService>(CreateActivationService);
-            // Start #AddWithdIdentity
+            _activationService = new Lazy<ActivationService>(CreateActivationService);            
             _identityService.LoggedOut += OnLoggedOut;
-            // End
         }
 
         protected override async void OnLaunched(LaunchActivatedEventArgs args)
@@ -46,14 +44,12 @@ namespace ForcedLogInApp
         {
             return new ActivationService(this, typeof(Views.MainPage), new Lazy<UIElement>(CreateShell));
         }
-
-        // Start #AddWithdIdentity
+        
         private void OnLoggedOut(object sender, EventArgs e)
         {
             ActivationService.SetShell(new Lazy<UIElement>(CreateShell));
             ActivationService.RedirectLoginPage();
-        }        
-        // End
+        }
 
         private UIElement CreateShell()
         {

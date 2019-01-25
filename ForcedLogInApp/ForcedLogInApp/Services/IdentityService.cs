@@ -45,49 +45,7 @@ namespace ForcedLogInApp.Services
             return await SilentLoginAsync();
         }
 
-        internal async Task LogoutAsync()
-        {
-            try
-            {
-                var accounts = await _client.GetAccountsAsync();
-                var account = accounts.FirstOrDefault();
-                if (account != null)
-                {
-                    await _client.RemoveAsync(account);
-                }
-            }
-            catch (MsalException)
-            {
-            }
-            finally
-            {
-                _authenticationResult = null;
-                LoggedOut?.Invoke(this, EventArgs.Empty);
-            }
-        }
-
-        internal bool IsLoggedIn()
-        {
-            return _authenticationResult != null;
-        }
-
-        internal async Task<string> GetAccessTokenAsync()
-        {
-            if (!_authenticationResult.IsAccessTokenExpired())
-            {
-                return _authenticationResult.AccessToken;
-            }
-
-            var loginSuccess = await SilentLoginAsync();
-            if (loginSuccess)
-            {
-                return _authenticationResult.AccessToken;
-            }
-
-            _authenticationResult = null;
-            LoggedOut?.Invoke(this, EventArgs.Empty);
-            return string.Empty;
-        }
+        internal bool IsLoggedIn() => _authenticationResult != null;        
 
         internal async Task<LoginResultType> LoginAsync()
         {
@@ -126,9 +84,48 @@ namespace ForcedLogInApp.Services
             {
                 return LoginResultType.UnknownError;
             }
+        }        
+
+        internal async Task LogoutAsync()
+        {
+            try
+            {
+                var accounts = await _client.GetAccountsAsync();
+                var account = accounts.FirstOrDefault();
+                if (account != null)
+                {
+                    await _client.RemoveAsync(account);
+                }
+            }
+            catch (MsalException)
+            {
+            }
+            finally
+            {
+                _authenticationResult = null;
+                LoggedOut?.Invoke(this, EventArgs.Empty);
+            }
         }
 
-        internal async Task<bool> SilentLoginAsync()
+        internal async Task<string> GetAccessTokenAsync()
+        {
+            if (!_authenticationResult.IsAccessTokenExpired())
+            {
+                return _authenticationResult.AccessToken;
+            }
+
+            var loginSuccess = await SilentLoginAsync();
+            if (loginSuccess)
+            {
+                return _authenticationResult.AccessToken;
+            }
+
+            _authenticationResult = null;
+            LoggedOut?.Invoke(this, EventArgs.Empty);
+            return string.Empty;
+        }
+
+        private async Task<bool> SilentLoginAsync()
         {
             if (!NetworkInterface.GetIsNetworkAvailable())
             {

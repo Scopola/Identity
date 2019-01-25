@@ -20,19 +20,15 @@ namespace ForcedLogInApp.Services
         private readonly Type _defaultNavItem;
         private Lazy<UIElement> _shell;
 
-        // Start #AddWithdIdentity
         private object _lastActivationArgs;
         private IdentityService _identityService => Singleton<IdentityService>.Instance;
-        // End
 
         public ActivationService(App app, Type defaultNavItem, Lazy<UIElement> shell = null)
         {
             _app = app;
             _shell = shell;
             _defaultNavItem = defaultNavItem;
-            // Start #AddWithdIdentity
             _identityService.LoggedIn += OnLoggedIn;
-            // End
         }
 
         public async Task ActivateAsync(object activationArgs)
@@ -62,9 +58,7 @@ namespace ForcedLogInApp.Services
                 await HandleActivationAsync(activationArgs);
             }
 
-            // Start #AddWithdIdentity
             _lastActivationArgs = activationArgs;
-            // End
 
             if (IsInteractive(activationArgs))
             {
@@ -89,14 +83,12 @@ namespace ForcedLogInApp.Services
             Window.Current.Content = frame;
         }
 
-        // Start #AddWithdIdentity
         private async void OnLoggedIn(object sender, EventArgs e)
         {
             Window.Current.Content = _shell?.Value ?? new Frame();
             await HandleActivationAsync(_lastActivationArgs);
             _lastActivationArgs = null;
         }
-        // End
 
         private async Task InitializeAsync()
         {
