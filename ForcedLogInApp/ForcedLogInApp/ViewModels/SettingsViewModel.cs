@@ -1,27 +1,24 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Windows.Input;
 using ForcedLogInApp.Core.Helpers;
 using ForcedLogInApp.Core.Models;
+using ForcedLogInApp.Core.Services;
 using ForcedLogInApp.Helpers;
 using ForcedLogInApp.Services;
-using ForcedLogInApp.Views;
 using Windows.ApplicationModel;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace ForcedLogInApp.ViewModels
 {
     // TODO WTS: Add other settings as necessary. For help see https://github.com/Microsoft/WindowsTemplateStudio/blob/master/docs/pages/settings.md
     public class SettingsViewModel : Observable
     {
-        private MicrosoftGraphService _microsoftGraphService => Singleton<MicrosoftGraphService>.Instance;
+        private UserDataService _microsoftGraphData => Singleton<UserDataService>.Instance;
         private IdentityService _identityService => Singleton<IdentityService>.Instance;
 
         private ElementTheme _elementTheme = ThemeSelectorService.Theme;
+        private UserViewModel _user;
 
         public ElementTheme ElementTheme
         {
@@ -63,22 +60,10 @@ namespace ForcedLogInApp.ViewModels
 
         public ICommand LogoutCommand => _logoutCommand ?? (_logoutCommand = new RelayCommand(OnLogout));
 
-        private User _user;
-
-        public User User
+        public UserViewModel User
         {
             get { return _user; }
-
             set { Set(ref _user, value); }
-        }
-
-        private ImageSource _userPhoto;
-
-        public ImageSource UserPhoto
-        {
-            get { return _userPhoto; }
-
-            set { Set(ref _userPhoto, value); }
         }
 
         public SettingsViewModel()
@@ -88,8 +73,7 @@ namespace ForcedLogInApp.ViewModels
         public async Task InitializeAsync()
         {
             VersionDescription = GetVersionDescription();
-            User = await _microsoftGraphService.GetUserInfoAsync();
-            UserPhoto = await _microsoftGraphService.GetUserPhoto();
+            User = await _microsoftGraphData.GetUserFromCacheAsync();
         }
 
         private string GetVersionDescription()

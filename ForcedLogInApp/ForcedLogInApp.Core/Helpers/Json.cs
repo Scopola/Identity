@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-
 using Newtonsoft.Json;
 
-namespace ForcedLogInApp.Helpers
+namespace ForcedLogInApp.Core.Helpers
 {
     public static class Json
     {

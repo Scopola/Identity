@@ -26,5 +26,7 @@ namespace ForcedLogInApp.Core.Models
         public string Surname { get; set; }
 
         public string UserPrincipalName { get; set; }
+
+        public string Photo { get; set; }
     }
 }

@@ -65,12 +65,12 @@
                     </Grid.ColumnDefinitions>
                     <Ellipse Width="28" Height="28">
                         <Ellipse.Fill>
-                            <ImageBrush ImageSource="{x:Bind ViewModel.UserPhoto, Mode=OneWay}" Stretch="UniformToFill" />
+                            <ImageBrush ImageSource="{x:Bind ViewModel.User.Photo, Mode=OneWay}" Stretch="UniformToFill" />
                         </Ellipse.Fill>
                     </Ellipse>
                     <TextBlock
                     Grid.Column="1"
-                    Text="{x:Bind ViewModel.User.DisplayName, Mode=OneWay}"
+                    Text="{x:Bind ViewModel.User.Name, Mode=OneWay}"
                     VerticalAlignment="Center"
                     Style="{ThemeResource BodyTextBlockStyle}" />
                 </Grid>

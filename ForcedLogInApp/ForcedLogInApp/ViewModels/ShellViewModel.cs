@@ -1,22 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Input;
-
+using ForcedLogInApp.Core.Helpers;
 using ForcedLogInApp.Helpers;
-using Models = ForcedLogInApp.Core.Models;
 using ForcedLogInApp.Services;
 using ForcedLogInApp.Views;
 using Windows.System;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
-
 using WinUI = Microsoft.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
-using ForcedLogInApp.Core.Helpers;
 
 namespace ForcedLogInApp.ViewModels
 {
@@ -32,10 +26,10 @@ namespace ForcedLogInApp.ViewModels
         private ICommand _loadedCommand;
         private ICommand _userProfileCommand;
         private ICommand _itemInvokedCommand;
-        private Models.User _user;
+        private UserViewModel _user;
 
         private IdentityService _identityService => Singleton<IdentityService>.Instance;
-        private MicrosoftGraphService _microsoftGraphService => Singleton<MicrosoftGraphService>.Instance;
+        private UserDataService _microsoftGraphData => Singleton<UserDataService>.Instance;
 
         public bool IsBackEnabled
         {
@@ -55,19 +49,10 @@ namespace ForcedLogInApp.ViewModels
 
         public ICommand ItemInvokedCommand => _itemInvokedCommand ?? (_itemInvokedCommand = new RelayCommand<WinUI.NavigationViewItemInvokedEventArgs>(OnItemInvoked));
 
-        public Models.User User
+        public UserViewModel User
         {
             get { return _user; }
             set { Set(ref _user, value); }
-        }
-
-        private ImageSource _userPhoto;
-
-        public ImageSource UserPhoto
-        {
-            get { return _userPhoto; }
-
-            set { Set(ref _userPhoto, value); }
         }
 
         public ShellViewModel()
@@ -97,8 +82,9 @@ namespace ForcedLogInApp.ViewModels
             // More info on tracking issue https://github.com/Microsoft/microsoft-ui-xaml/issues/8
             _keyboardAccelerators.Add(_altLeftKeyboardAccelerator);
             _keyboardAccelerators.Add(_backKeyboardAccelerator);
-            User = await _microsoftGraphService.GetUserInfoAsync();
-            UserPhoto = await _microsoftGraphService.GetUserPhoto();
+            User = await _microsoftGraphData.GetUserFromCacheAsync();
+            var freshData = await _microsoftGraphData.GetUserFromGraphApiAsync();
+            User.Update(freshData);
         }
 
         private void OnItemInvoked(WinUI.NavigationViewItemInvokedEventArgs args)

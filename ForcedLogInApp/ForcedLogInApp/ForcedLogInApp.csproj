@@ -100,6 +100,7 @@
     <Compile Include="Activation\SchemeActivationHandler.cs" />
     <Compile Include="Helpers\AuthenticationResultExtensions.cs" />
     <Compile Include="Helpers\Consts.cs" />
+    <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Services\ActivationService.cs" />
     <Compile Include="Activation\DefaultLaunchActivationHandler.cs" />
   </ItemGroup>
@@ -142,6 +143,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\DefaultIcon.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -205,7 +207,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Services\IdentityService.cs" />
-    <Compile Include="Services\MicrosoftGraphService.cs" />
+    <Compile Include="Services\UserDataService.cs" />
     <Compile Include="Services\NavigationService.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -242,6 +244,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ViewModels\UserViewModel.cs" />
     <Compile Include="Views\SchemeActivationSamplePage.xaml.cs">
       <DependentUpon>SchemeActivationSamplePage.xaml</DependentUpon>
     </Compile>
@@ -288,9 +291,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\SettingsStorageExtensions.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Helpers\Json.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\EnumToBooleanConverter.cs" />

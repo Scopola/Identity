@@ -5,8 +5,7 @@ using System.Threading.Tasks;
 
 using ForcedLogInApp.Activation;
 using ForcedLogInApp.Core.Helpers;
-using ForcedLogInApp.Helpers;
-using ForcedLogInApp.Views;
+using ForcedLogInApp.Core.Services;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -22,7 +21,6 @@ namespace ForcedLogInApp.Services
 
         // Start #AddWithdIdentity
         private object _lastActivationArgs;
-        private MicrosoftGraphService _microsoftGraphService => Singleton<MicrosoftGraphService>.Instance;
         private IdentityService _identityService => Singleton<IdentityService>.Instance;
         // End
 
@@ -88,7 +86,6 @@ namespace ForcedLogInApp.Services
             {
                 await ThemeSelectorService.InitializeAsync();
                 // Start #AddWithdIdentity
-                _microsoftGraphService.Initialize();
                 await _identityService.LoginWithCommonAuthorityAsync();
                 // End
             }
