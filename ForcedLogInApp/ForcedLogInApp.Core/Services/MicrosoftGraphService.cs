@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -10,6 +9,12 @@ namespace ForcedLogInApp.Core.Services
 {
     public class MicrosoftGraphService
     {
+        // TODO WTS: Checkout Microsoft Graph Explorer
+        // https://developer.microsoft.com/graph/graph-explorer
+        //
+        // Checkout Get-User Service Documentation
+        // https://docs.microsoft.com/graph/api/user-get?view=graph-rest-1.0
+        //
         private const string _graphAPIEndpoint = "https://graph.microsoft.com/v1.0/";
         private const string _apiServiceMe = "me/";
         private const string _apiServiceMePhoto = "me/photo/$value";
