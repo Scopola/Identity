@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
+using ForcedLogInApp.Configuration;
 using ForcedLogInApp.Helpers;
 using Microsoft.Identity.Client;
 
@@ -25,7 +26,7 @@ namespace ForcedLogInApp.Services
         {
             // AAD and MSA accounts
             _integratedAuthAvailable = false;
-            _client = new PublicClientApplication(Consts.IdentityAppId, $"{_loginEndpoint}/{_commonAuthority}/");
+            _client = new PublicClientApplication(AppSecrets.IdentityClientId, $"{_loginEndpoint}/{_commonAuthority}/");
             return await SilentLoginAsync();
         }
 
@@ -33,7 +34,7 @@ namespace ForcedLogInApp.Services
         {
             // All AAD and Integrated Auth
             _integratedAuthAvailable = integratedAuth;
-            _client = new PublicClientApplication(Consts.IdentityAppId, $"{_loginEndpoint}/{_organizationsAuthority}/");
+            _client = new PublicClientApplication(AppSecrets.IdentityClientId, $"{_loginEndpoint}/{_organizationsAuthority}/");
             return await SilentLoginAsync();
         }
 
@@ -41,11 +42,11 @@ namespace ForcedLogInApp.Services
         {
             // Single domain AAD and Integrated Auth
             _integratedAuthAvailable = integratedAuth;
-            _client = new PublicClientApplication(Consts.IdentityAppId, $"{_loginEndpoint}/{tenantId}/");
+            _client = new PublicClientApplication(AppSecrets.IdentityClientId, $"{_loginEndpoint}/{tenantId}/");
             return await SilentLoginAsync();
         }
 
-        internal bool IsLoggedIn() => _authenticationResult != null;        
+        internal bool IsLoggedIn() => _authenticationResult != null;
 
         internal async Task<LoginResultType> LoginAsync()
         {
@@ -54,20 +55,15 @@ namespace ForcedLogInApp.Services
                 return LoginResultType.NoNetworkAvailable;
             }
 
-            AuthenticationResult result = null;
             try
             {
                 var accounts = await _client.GetAccountsAsync();
                 var firstAccount = accounts.FirstOrDefault();
-                if (firstAccount != null)
-                {
-                    result = await _client.AcquireTokenAsync(_scopes, firstAccount);
-                }
-                else
-                {
-                    result = await _client.AcquireTokenAsync(_scopes);
-                }
-                _authenticationResult = result;
+
+                _authenticationResult = firstAccount != null
+                    ? await _client.AcquireTokenAsync(_scopes, firstAccount)
+                    : await _client.AcquireTokenAsync(_scopes);
+
                 LoggedIn?.Invoke(this, EventArgs.Empty);
                 return LoginResultType.Success;
             }
@@ -84,7 +80,12 @@ namespace ForcedLogInApp.Services
             {
                 return LoginResultType.UnknownError;
             }
-        }        
+        }
+
+        internal string GetAccountUserName()
+        {
+            return _authenticationResult?.Account?.Username;
+        }
 
         internal async Task LogoutAsync()
         {
@@ -96,14 +97,13 @@ namespace ForcedLogInApp.Services
                 {
                     await _client.RemoveAsync(account);
                 }
+
+                _authenticationResult = null;
+                LoggedOut?.Invoke(this, EventArgs.Empty);
             }
             catch (MsalException)
             {
-            }
-            finally
-            {
-                _authenticationResult = null;
-                LoggedOut?.Invoke(this, EventArgs.Empty);
+                // TODO WTS: LogoutAsync can fail please handle exceptions as appropriate to your scenario
             }
         }
 
@@ -119,10 +119,14 @@ namespace ForcedLogInApp.Services
             {
                 return _authenticationResult.AccessToken;
             }
-
-            _authenticationResult = null;
-            LoggedOut?.Invoke(this, EventArgs.Empty);
-            return string.Empty;
+            else
+            {
+                // The token has expired and we can't obtain a new one
+                // The session will be closed.
+                _authenticationResult = null;
+                LoggedOut?.Invoke(this, EventArgs.Empty);
+                return string.Empty;
+            }
         }
 
         private async Task<bool> SilentLoginAsync()
@@ -133,21 +137,19 @@ namespace ForcedLogInApp.Services
             }
             try
             {
-                AuthenticationResult result = null;
                 if (_integratedAuthAvailable)
                 {
-                    result = await _client.AcquireTokenByIntegratedWindowsAuthAsync(_scopes);
+                    _authenticationResult = await _client.AcquireTokenByIntegratedWindowsAuthAsync(_scopes);
                 }
                 else
                 {
                     var accounts = await _client.GetAccountsAsync();
-                    result = await _client.AcquireTokenSilentAsync(_scopes, accounts.FirstOrDefault());
+                    _authenticationResult = await _client.AcquireTokenSilentAsync(_scopes, accounts.FirstOrDefault());
                 }
 
-                _authenticationResult = result;
                 return true;
             }
-            catch (Exception)
+            catch (MsalException)
             {
                 return false;
             }

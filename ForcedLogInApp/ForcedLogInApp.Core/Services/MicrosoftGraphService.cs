@@ -22,20 +22,29 @@ namespace ForcedLogInApp.Core.Services
         {
             User user = null;
             var httpContent = await GetDataAsync($"{_graphAPIEndpoint}{_apiServiceMe}", accessToken);
-
-            var userData = await httpContent?.ReadAsStringAsync();
-            if (!string.IsNullOrEmpty(userData))
+            if (httpContent != null)
             {
-                user = await Json.ToObjectAsync<User>(userData);
-            }
+                var userData = await httpContent.ReadAsStringAsync();
+                if (!string.IsNullOrEmpty(userData))
+                {
+                    user = await Json.ToObjectAsync<User>(userData);
+                }
+            }            
 
             return user;
         }
 
-        public async Task<Stream> GetUserPhoto(string accessToken)
+        public async Task<string> GetUserPhoto(string accessToken)
         {
             var httpContent = await GetDataAsync($"{_graphAPIEndpoint}{_apiServiceMePhoto}", accessToken);
-            return httpContent == null ? null : await httpContent?.ReadAsStreamAsync();
+
+            if (httpContent == null)
+            {
+                return string.Empty;
+            }
+
+            var stream = await httpContent.ReadAsStreamAsync();
+            return stream.ToBase64String();
         }
 
         private async Task<HttpContent> GetDataAsync(string url, string accessToken)
@@ -46,19 +55,19 @@ namespace ForcedLogInApp.Core.Services
                 {
                     var request = new HttpRequestMessage(HttpMethod.Get, url);
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                    var response = await httpClient.SendAsync(request);
+                    var response = await httpClient.SendAsync(request);                    
                     if (response.IsSuccessStatusCode)
                     {
                         return response.Content;
                     }
-
-                    return null;
                 }
             }
             catch (Exception)
             {
-                return null;
+                // TODO WTS: This call can fail please handle exceptions as appropriate to your scenario
             }
+
+            return null;
         }
     }
 }

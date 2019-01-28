@@ -9,14 +9,14 @@ namespace ForcedLogInApp.ViewModels
     public class LogInViewModel : Observable
     {
         private IdentityService _identityService => Singleton<IdentityService>.Instance;
-        private string _status;
+        private string _statusMessage;
         private bool _isBusy;
         private RelayCommand _loginCommand;
 
-        public string Status
+        public string StatusMessage
         {
-            get { return _status; }
-            set { Set(ref _status, value); }
+            get { return _statusMessage; }
+            set { Set(ref _statusMessage, value); }
         }
 
         public bool IsBusy
@@ -38,9 +38,9 @@ namespace ForcedLogInApp.ViewModels
         private async void OnLogin()
         {
             IsBusy = true;
-            Status = string.Empty;
+            StatusMessage = string.Empty;
             var loginResult = await _identityService.LoginAsync();
-            Status = GetStatusMessage(loginResult);
+            StatusMessage = GetStatusMessage(loginResult);
             IsBusy = false;
         }
 

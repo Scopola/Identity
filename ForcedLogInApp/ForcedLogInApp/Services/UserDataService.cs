@@ -30,7 +30,7 @@ namespace ForcedLogInApp.Services
         public async Task<UserViewModel> GetUserFromCacheAsync()
         {
             var cacheData = await ApplicationData.Current.LocalFolder.ReadAsync<User>(_userSettingsKey);
-            return await UserFromData(cacheData);
+            return await GetUserViewModelFromData(cacheData);
         }        
 
         public async Task<UserViewModel> GetUserFromGraphApiAsync()
@@ -44,34 +44,27 @@ namespace ForcedLogInApp.Services
             var userData = await _microsoftGraphService.GetUserInfoAsync(accessToken);
             if (userData != null)
             {
-                var photoStream = await _microsoftGraphService.GetUserPhoto(accessToken);
-                if (photoStream != null)
-                {
-                    userData.Photo = ImageHelper.StringFromStream(photoStream);
-                }
-
+                userData.Photo = await _microsoftGraphService.GetUserPhoto(accessToken);
                 await ApplicationData.Current.LocalFolder.SaveAsync(_userSettingsKey, userData);
             }
 
-            return await UserFromData(userData);
+            return await GetUserViewModelFromData(userData);
         }
 
-        private async Task<UserViewModel> UserFromData(User userData)
+        private async Task<UserViewModel> GetUserViewModelFromData(User userData)
         {
             if (userData == null)
             {
-                return new UserViewModel();
+                return new UserViewModel()
+                {
+                    Name = _identityService.GetAccountUserName(),
+                    Photo =ImageHelper.ImageFromAssetsFile("DefaultIcon.png")
+                };
             }
 
-            BitmapImage userPhoto = null;
-            if (string.IsNullOrEmpty(userData.Photo))
-            {
-                userPhoto = ImageHelper.ImageFromAssetsFile("DefaultIcon.png");
-            }
-            else
-            {
-                userPhoto = await ImageHelper.ImageFromStringAsync(userData.Photo);
-            }
+            var userPhoto = string.IsNullOrEmpty(userData.Photo)
+                ? ImageHelper.ImageFromAssetsFile("DefaultIcon.png")
+                : await ImageHelper.ImageFromStringAsync(userData.Photo);
 
             return new UserViewModel(userData, userPhoto);
         }

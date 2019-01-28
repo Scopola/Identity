@@ -99,7 +99,7 @@
     <Compile Include="Activation\SchemeActivationData.cs" />
     <Compile Include="Activation\SchemeActivationHandler.cs" />
     <Compile Include="Helpers\AuthenticationResultExtensions.cs" />
-    <Compile Include="Helpers\Consts.cs" />
+    <Compile Include="Configuration\AppSecrets.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\LoginResultType.cs" />
     <Compile Include="Services\ActivationService.cs" />

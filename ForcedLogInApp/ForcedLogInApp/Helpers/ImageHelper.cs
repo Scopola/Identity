@@ -9,15 +9,6 @@ namespace ForcedLogInApp.Helpers
 {
     public static class ImageHelper
     {
-        public static string StringFromStream(Stream photoStream)
-        {
-            using (var memoryStream = new MemoryStream())
-            {
-                photoStream.CopyTo(memoryStream);
-                return Convert.ToBase64String(memoryStream.ToArray());
-            }
-        }
-
         public static async Task<BitmapImage> ImageFromStringAsync(string data)
         {
             var byteArray = Convert.FromBase64String(data);
