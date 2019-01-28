@@ -1,6 +1,6 @@
 ﻿using System;
 using ForcedLogInApp.Core.Helpers;
-using ForcedLogInApp.Helpers;
+using ForcedLogInApp.Core.Services;
 using ForcedLogInApp.Services;
 
 using Windows.ApplicationModel.Activation;

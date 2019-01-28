@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Net.NetworkInformation;
 using ForcedLogInApp.Core.Helpers;
+using ForcedLogInApp.Core.Services;
 using ForcedLogInApp.Helpers;
-using ForcedLogInApp.Services;
 
 namespace ForcedLogInApp.ViewModels
 {

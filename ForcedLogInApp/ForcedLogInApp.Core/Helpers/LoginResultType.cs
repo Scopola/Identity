@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ForcedLogInApp.Helpers
+namespace ForcedLogInApp.Core.Helpers
 {
     public enum LoginResultType
     {

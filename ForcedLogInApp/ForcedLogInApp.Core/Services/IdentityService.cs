@@ -2,13 +2,13 @@
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
-using ForcedLogInApp.Configuration;
-using ForcedLogInApp.Helpers;
+using ForcedLogInApp.Core.Configuration;
+using ForcedLogInApp.Core.Helpers;
 using Microsoft.Identity.Client;
 
-namespace ForcedLogInApp.Services
+namespace ForcedLogInApp.Core.Services
 {
-    internal class IdentityService
+    public class IdentityService
     {
         private const string _loginEndpoint = "https://login.microsoftonline.com";
         private const string _commonAuthority = "common";
@@ -19,10 +19,10 @@ namespace ForcedLogInApp.Services
         private PublicClientApplication _client;
         private AuthenticationResult _authenticationResult;
 
-        internal event EventHandler LoggedIn;
-        internal event EventHandler LoggedOut;
+        public event EventHandler LoggedIn;
+        public event EventHandler LoggedOut;
 
-        internal async Task<bool> LoginWithCommonAuthorityAsync()
+        public async Task<bool> LoginWithCommonAuthorityAsync()
         {
             // AAD and MSA accounts
             _integratedAuthAvailable = false;
@@ -30,7 +30,7 @@ namespace ForcedLogInApp.Services
             return await SilentLoginAsync();
         }
 
-        internal async Task<bool> LoginWithOrganizationsAuthorityAsync(bool integratedAuth = false)
+        public async Task<bool> LoginWithOrganizationsAuthorityAsync(bool integratedAuth = false)
         {
             // All AAD and Integrated Auth
             _integratedAuthAvailable = integratedAuth;
@@ -38,7 +38,7 @@ namespace ForcedLogInApp.Services
             return await SilentLoginAsync();
         }
 
-        internal async Task<bool> LoginWithTenantAuthority(string tenantId, bool integratedAuth = false)
+        public async Task<bool> LoginWithTenantAuthority(string tenantId, bool integratedAuth = false)
         {
             // Single domain AAD and Integrated Auth
             _integratedAuthAvailable = integratedAuth;
@@ -46,9 +46,9 @@ namespace ForcedLogInApp.Services
             return await SilentLoginAsync();
         }
 
-        internal bool IsLoggedIn() => _authenticationResult != null;
+        public bool IsLoggedIn() => _authenticationResult != null;
 
-        internal async Task<LoginResultType> LoginAsync()
+        public async Task<LoginResultType> LoginAsync()
         {
             if (!NetworkInterface.GetIsNetworkAvailable())
             {
@@ -82,12 +82,12 @@ namespace ForcedLogInApp.Services
             }
         }
 
-        internal string GetAccountUserName()
+        public string GetAccountUserName()
         {
             return _authenticationResult?.Account?.Username;
         }
 
-        internal async Task LogoutAsync()
+        public async Task LogoutAsync()
         {
             try
             {
@@ -107,7 +107,7 @@ namespace ForcedLogInApp.Services
             }
         }
 
-        internal async Task<string> GetAccessTokenAsync()
+        public async Task<string> GetAccessTokenAsync()
         {
             if (!_authenticationResult.IsAccessTokenExpired())
             {

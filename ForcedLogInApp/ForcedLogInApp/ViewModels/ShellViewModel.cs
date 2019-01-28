@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using ForcedLogInApp.Core.Helpers;
+using ForcedLogInApp.Core.Services;
 using ForcedLogInApp.Helpers;
 using ForcedLogInApp.Services;
 using ForcedLogInApp.Views;
