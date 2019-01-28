@@ -6,7 +6,6 @@ using ForcedLogInApp.Core.Services;
 using ForcedLogInApp.Helpers;
 using ForcedLogInApp.ViewModels;
 using Windows.Storage;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace ForcedLogInApp.Services
 {

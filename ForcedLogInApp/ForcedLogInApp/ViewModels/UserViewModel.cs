@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using ForcedLogInApp.Core.Models;
 using ForcedLogInApp.Helpers;
 using Windows.UI.Xaml.Media.Imaging;
