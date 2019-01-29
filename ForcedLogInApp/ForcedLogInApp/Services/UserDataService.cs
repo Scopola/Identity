@@ -61,7 +61,21 @@ namespace ForcedLogInApp.Services
                 ? ImageHelper.ImageFromAssetsFile("DefaultIcon.png")
                 : await ImageHelper.ImageFromStringAsync(userData.Photo);
 
-            return new UserViewModel(userData, userPhoto);
+            return new UserViewModel()
+            {
+                Name = userData.DisplayName,
+                UserPrincipalName = userData.UserPrincipalName,
+                Photo = userPhoto
+            };
+        }
+
+        internal UserViewModel GetDefaultUserData()
+        {
+            return new UserViewModel()
+            {
+                Name = _identityService.GetAccountUserName(),
+                Photo = ImageHelper.ImageFromAssetsFile("DefaultIcon.png")
+            };
         }
     }
 }

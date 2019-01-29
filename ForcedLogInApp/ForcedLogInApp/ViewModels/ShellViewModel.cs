@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using ForcedLogInApp.Core.Helpers;
 using ForcedLogInApp.Core.Services;
@@ -84,14 +85,10 @@ namespace ForcedLogInApp.ViewModels
             _keyboardAccelerators.Add(_altLeftKeyboardAccelerator);
             _keyboardAccelerators.Add(_backKeyboardAccelerator);
             User = await _userDataService.GetUserFromCacheAsync();
-            var freshData = await _userDataService.GetUserFromGraphApiAsync();
+            User = await _userDataService.GetUserFromGraphApiAsync();
             if (User == null)
             {
-                User = freshData;
-            }
-            else
-            {
-                User.Update(freshData);
+                User = _userDataService.GetDefaultUserData();
             }
         }
 
