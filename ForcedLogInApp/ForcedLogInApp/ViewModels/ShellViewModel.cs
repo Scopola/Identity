@@ -30,7 +30,7 @@ namespace ForcedLogInApp.ViewModels
         private UserViewModel _user;
 
         private IdentityService _identityService => Singleton<IdentityService>.Instance;
-        private UserDataService _microsoftGraphData => Singleton<UserDataService>.Instance;
+        private UserDataService _userDataService => Singleton<UserDataService>.Instance;
 
         public bool IsBackEnabled
         {
@@ -83,9 +83,16 @@ namespace ForcedLogInApp.ViewModels
             // More info on tracking issue https://github.com/Microsoft/microsoft-ui-xaml/issues/8
             _keyboardAccelerators.Add(_altLeftKeyboardAccelerator);
             _keyboardAccelerators.Add(_backKeyboardAccelerator);
-            User = await _microsoftGraphData.GetUserFromCacheAsync();
-            var freshData = await _microsoftGraphData.GetUserFromGraphApiAsync();
-            User.Update(freshData);
+            User = await _userDataService.GetUserFromCacheAsync();
+            var freshData = await _userDataService.GetUserFromGraphApiAsync();
+            if (User == null)
+            {
+                User = freshData;
+            }
+            else
+            {
+                User.Update(freshData);
+            }
         }
 
         private void OnItemInvoked(WinUI.NavigationViewItemInvokedEventArgs args)

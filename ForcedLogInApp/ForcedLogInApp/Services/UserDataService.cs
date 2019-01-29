@@ -6,16 +6,15 @@ using ForcedLogInApp.Core.Services;
 using ForcedLogInApp.Helpers;
 using ForcedLogInApp.ViewModels;
 using Windows.Storage;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace ForcedLogInApp.Services
 {
     public class UserDataService
     {
-        private const string _userSettingsKey = "IdentityUser";        
+        private const string _userSettingsKey = "IdentityUser";
 
         private IdentityService _identityService => Singleton<IdentityService>.Instance;
-        private MicrosoftGraphService _microsoftGraphService => Singleton<MicrosoftGraphService>.Instance;        
+        private MicrosoftGraphService _microsoftGraphService => Singleton<MicrosoftGraphService>.Instance;
 
         public UserDataService()
         {
@@ -31,7 +30,7 @@ namespace ForcedLogInApp.Services
         {
             var cacheData = await ApplicationData.Current.LocalFolder.ReadAsync<User>(_userSettingsKey);
             return await GetUserViewModelFromData(cacheData);
-        }        
+        }
 
         public async Task<UserViewModel> GetUserFromGraphApiAsync()
         {
@@ -55,11 +54,7 @@ namespace ForcedLogInApp.Services
         {
             if (userData == null)
             {
-                return new UserViewModel()
-                {
-                    Name = _identityService.GetAccountUserName(),
-                    Photo =ImageHelper.ImageFromAssetsFile("DefaultIcon.png")
-                };
+                return null;
             }
 
             var userPhoto = string.IsNullOrEmpty(userData.Photo)

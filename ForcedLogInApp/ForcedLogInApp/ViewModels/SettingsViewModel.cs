@@ -1,20 +1,18 @@
 ﻿using System.Threading.Tasks;
 using System.Windows.Input;
 using ForcedLogInApp.Core.Helpers;
-using ForcedLogInApp.Core.Models;
 using ForcedLogInApp.Core.Services;
 using ForcedLogInApp.Helpers;
 using ForcedLogInApp.Services;
 using Windows.ApplicationModel;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media;
 
 namespace ForcedLogInApp.ViewModels
 {
     // TODO WTS: Add other settings as necessary. For help see https://github.com/Microsoft/WindowsTemplateStudio/blob/master/docs/pages/settings.md
     public class SettingsViewModel : Observable
     {
-        private UserDataService _microsoftGraphData => Singleton<UserDataService>.Instance;
+        private UserDataService _userDataService => Singleton<UserDataService>.Instance;
         private IdentityService _identityService => Singleton<IdentityService>.Instance;
 
         private ElementTheme _elementTheme = ThemeSelectorService.Theme;
@@ -73,7 +71,7 @@ namespace ForcedLogInApp.ViewModels
         public async Task InitializeAsync()
         {
             VersionDescription = GetVersionDescription();
-            User = await _microsoftGraphData.GetUserFromCacheAsync();
+            User = await _userDataService.GetUserFromCacheAsync();
         }
 
         private string GetVersionDescription()
