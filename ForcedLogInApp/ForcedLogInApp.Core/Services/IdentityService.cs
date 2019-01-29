@@ -10,8 +10,9 @@ namespace ForcedLogInApp.Core.Services
 {
     public class IdentityService
     {
-        // TODO WTS: Read more about Microsoft Identity Client here
+        // Read more about Microsoft Identity Client here
         // https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki
+        // https://docs.microsoft.com/azure/active-directory/develop/v2-overview
         //
         private const string _loginEndpoint = "https://login.microsoftonline.com";
         private const string _commonAuthority = "common";
