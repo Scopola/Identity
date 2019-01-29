@@ -9,7 +9,7 @@ namespace OptionalLoginApp.Core.Services
 {
     public class MicrosoftGraphService
     {
-        // TODO WTS: Checkout Microsoft Graph Explorer
+        // Checkout Microsoft Graph Explorer
         // https://developer.microsoft.com/graph/graph-explorer
         //
         // Checkout Get-User Service Documentation
