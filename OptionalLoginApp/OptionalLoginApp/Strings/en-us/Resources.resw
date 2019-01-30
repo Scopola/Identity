@@ -206,4 +206,7 @@
   <data name="Settings_LogIn.Content" xml:space="preserve">
     <value>Log in</value>
   </data>
+  <data name="Settings_NoUserLoggedIn.Text" xml:space="preserve">
+    <value>There is no user logged in, please click "Log In" to log in.</value>
+  </data>
 </root>

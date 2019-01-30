@@ -107,7 +107,16 @@ namespace OptionalLoginApp.ViewModels
         private async Task GetUserDataAsync()
         {
             IsLoggedIn = _identityService.IsLoggedIn();
-            User = IsLoggedIn ? await _userDataService.GetUserFromCacheAsync() : null;
+            if (IsLoggedIn)
+            {
+                User = await _userDataService.GetUserFromCacheAsync();
+                User = await _userDataService.GetUserFromGraphApiAsync();
+                if (User == null)
+                {
+                    User = _userDataService.GetDefaultUserData();
+                }
+            }
+
         }
 
         private string GetVersionDescription()

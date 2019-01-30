@@ -89,9 +89,9 @@ namespace OptionalLoginApp.ViewModels
             NavigationService.Frame = frame;
             NavigationService.Navigated += Frame_Navigated;
             _navigationView.BackRequested += OnBackRequested;
-            _identityService.LoggedIn += async (sender, e) => await GetUserDataAsync();
-            _identityService.LoggedOut += async (sender, e) => await GetUserDataAsync();
-        }
+            _identityService.LoggedIn += OnLoggedIn;
+            _identityService.LoggedOut += OnLoggedOut;
+        }        
 
         private async void OnLoaded()
         {
@@ -102,14 +102,53 @@ namespace OptionalLoginApp.ViewModels
             await GetUserDataAsync();
         }
 
+        private async void OnLoggedIn(object sender, EventArgs e)
+        {
+            await GetUserDataAsync();
+        }
+
+        private async void OnLoggedOut(object sender, EventArgs e)
+        {
+            await GetUserDataAsync();
+
+            // Remove all restricted pages from navigation back stack
+            foreach (var backStack in NavigationService.Frame.BackStack)
+            {
+                var menuItem = _navigationView.MenuItems
+                            .OfType<WinUI.NavigationViewItem>()
+                            .FirstOrDefault(navViewItem => IsMenuItemForPageType(navViewItem, backStack.SourcePageType));
+                if (menuItem != null && NavHelper.GetRestricted(menuItem))
+                {
+                    NavigationService.Frame.BackStack.Remove(backStack);
+                }
+            }
+        }
+
         private async Task GetUserDataAsync()
         {
             IsLoggedIn = _identityService.IsLoggedIn();
             if (IsLoggedIn)
             {
                 User = await _userDataService.GetUserFromCacheAsync();
-                var freshData = await _userDataService.GetUserFromGraphApiAsync();
-                User.Update(freshData);
+                User = await _userDataService.GetUserFromGraphApiAsync();
+                if (User == null)
+                {
+                    User = _userDataService.GetDefaultUserData();
+                }
+            }
+        }
+
+        private async void OnUserProfile()
+        {
+            if (IsLoggedIn)
+            {
+                NavigationService.Navigate<SettingsPage>();
+            }
+            else
+            {
+                IsBusy = true;
+                var loginResult = await _identityService.LoginAsync();
+                IsBusy = false;
             }
         }
 
@@ -151,43 +190,7 @@ namespace OptionalLoginApp.ViewModels
         {
             var pageType = menuItem.GetValue(NavHelper.NavigateToProperty) as Type;
             return pageType == sourcePageType;
-        }
-
-        private async void OnUserProfile()
-        {
-            if (IsLoggedIn)
-            {
-                NavigationService.Navigate<SettingsPage>();
-            }
-            else
-            {
-                IsBusy = true;
-                var loginResult = await _identityService.LoginAsync();
-                IsBusy = false;
-            }            
-        }
-
-        //private async void OnLogout()
-        //{
-        //    await _identity.LogoutAsync();
-        //    if (NavHelper.GetRestricted(Selected))
-        //    {
-        //        // Navigate to home (no restricted)
-        //        NavigationService.Navigate<MainPage>();
-        //    }
-
-        //    // Remove all restricted pages from navigation back stack
-        //    foreach (var backStack in NavigationService.Frame.BackStack)
-        //    {
-        //        var menuItem = _navigationView.MenuItems
-        //                    .OfType<WinUI.NavigationViewItem>()
-        //                    .FirstOrDefault(navViewItem => IsMenuItemForPageType(navViewItem, backStack.SourcePageType));
-        //        if (menuItem != null && NavHelper.GetRestricted(menuItem))
-        //        {
-        //            NavigationService.Frame.BackStack.Remove(backStack);
-        //        }
-        //    }
-        //}        
+        }       
 
         private static KeyboardAccelerator BuildKeyboardAccelerator(VirtualKey key, VirtualKeyModifiers? modifiers = null)
         {

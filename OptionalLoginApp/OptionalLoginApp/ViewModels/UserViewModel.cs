@@ -31,19 +31,5 @@ namespace OptionalLoginApp.ViewModels
         public UserViewModel()
         {
         }
-
-        public UserViewModel(User userData, BitmapImage userPhoto)
-        {
-            Name = userData.DisplayName;
-            UserPrincipalName = userData.UserPrincipalName;
-            Photo = userPhoto;
-        }
-
-        public void Update(UserViewModel freshData)
-        {
-            Name = freshData?.Name;
-            UserPrincipalName = freshData?.UserPrincipalName;
-            Photo = freshData?.Photo;
-        }
     }
 }
