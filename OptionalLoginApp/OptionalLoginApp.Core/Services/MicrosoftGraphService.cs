@@ -9,12 +9,11 @@ namespace OptionalLoginApp.Core.Services
 {
     public class MicrosoftGraphService
     {
-        // Checkout Microsoft Graph Explorer
-        // https://developer.microsoft.com/graph/graph-explorer
-        //
-        // Checkout Get-User Service Documentation
-        // https://docs.microsoft.com/graph/api/user-get?view=graph-rest-1.0
-        //
+        //// For more information about Get-User Service, refer to the following documentation
+        //// https://docs.microsoft.com/graph/api/user-get?view=graph-rest-1.0
+        //// You can test calls to the Microsoft Graph with the Microsoft Graph Explorer
+        //// https://developer.microsoft.com/graph/graph-explorer
+
         private const string _graphAPIEndpoint = "https://graph.microsoft.com/v1.0/";
         private const string _apiServiceMe = "me/";
         private const string _apiServiceMePhoto = "me/photo/$value";
