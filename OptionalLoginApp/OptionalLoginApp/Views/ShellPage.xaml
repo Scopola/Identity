@@ -44,6 +44,10 @@
                 helpers:NavHelper.NavigateTo="views:RestrictedContentPage"
                 helpers:NavHelper.Restricted="True"
                 Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay}" />
+            <winui:NavigationViewItem
+                x:Uid="Shell_SchemeActivationSample"
+                Icon="Document"
+                helpers:NavHelper.NavigateTo="views:SchemeActivationSamplePage" />
         </winui:NavigationView.MenuItems>
         <i:Interaction.Behaviors>
             <behaviors:NavigationViewHeaderBehavior
@@ -94,7 +98,7 @@
                             x:Uid="Shell_LogIn"
                             VerticalAlignment="Center"                            
                             Style="{ThemeResource BodyTextBlockStyle}"
-                            Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay}" />
+                            Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibility}}" />
                     </Grid>
                 </Button>
             </Grid>

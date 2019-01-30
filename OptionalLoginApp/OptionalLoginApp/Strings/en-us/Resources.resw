@@ -209,4 +209,10 @@
   <data name="Settings_NoUserLoggedIn.Text" xml:space="preserve">
     <value>There is no user logged in, please click "Log In" to log in.</value>
   </data>
+  <data name="Shell_SchemeActivationSample.Content" xml:space="preserve">
+    <value>SchemeActivationSample</value>
+  </data>
+  <data name="SchemeActivationSamplePage_Description.Text" xml:space="preserve">
+    <value>This is a sample page that will show activation parameters if the app is activated from Deep Linking.</value>
+  </data>
 </root>

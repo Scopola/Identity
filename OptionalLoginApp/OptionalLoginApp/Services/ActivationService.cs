@@ -85,11 +85,12 @@ namespace OptionalLoginApp.Services
         private async Task StartupAsync()
         {
             await ThemeSelectorService.SetRequestedThemeAsync();
+            await UserActivityService.AddSampleUserActivity();
         }
 
         private IEnumerable<ActivationHandler> GetActivationHandlers()
         {
-            yield break;
+            yield return Singleton<SchemeActivationHandler>.Instance;
         }
 
         private bool IsInteractive(object args)
