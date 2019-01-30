@@ -11,7 +11,6 @@
     mc:Ignorable="d">
     <Page.Resources>
         <helper:EnumToBooleanConverter x:Key="EnumToBooleanConverter" EnumType="ElementTheme" />
-        <converters:BoolToVisibilityConverter x:Name="BoolToVisibility" FalseValue="Collapsed" TrueValue="Visible" />
         <converters:BoolToVisibilityConverter x:Name="ReverseBoolToVisibility" FalseValue="Visible" TrueValue="Collapsed" />
     </Page.Resources>
 
@@ -65,7 +64,7 @@
 
             <StackPanel
                 Margin="{StaticResource SmallTopMargin}"
-                Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource BoolToVisibility}}"
+                Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay}"
                 Orientation="Horizontal">
                 <Ellipse Width="64" Height="64">
                     <Ellipse.Fill>
@@ -85,7 +84,7 @@
             <HyperlinkButton
                 x:Uid="Settings_LogOut"
                 Command="{x:Bind ViewModel.LogInOutCommand}"
-                Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource BoolToVisibility}}"
+                Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay}"
                 Margin="{StaticResource XSmallTopMargin}" />
             <TextBlock
                 x:Uid="Settings_NoUserLoggedIn"

@@ -14,7 +14,6 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <converters:BoolToVisibilityConverter x:Name="BoolToVisibility" FalseValue="Collapsed" TrueValue="Visible" />
         <converters:BoolToVisibilityConverter x:Name="ReverseBoolToVisibility" FalseValue="Visible" TrueValue="Collapsed" />
     </Page.Resources>
 
@@ -44,7 +43,7 @@
                 Icon="Document"
                 helpers:NavHelper.NavigateTo="views:RestrictedContentPage"
                 helpers:NavHelper.Restricted="True"
-                Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource BoolToVisibility}}" />
+                Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay}" />
         </winui:NavigationView.MenuItems>
         <i:Interaction.Behaviors>
             <behaviors:NavigationViewHeaderBehavior
@@ -74,7 +73,7 @@
                             <ColumnDefinition Width="48" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <Ellipse Width="28" Height="28" Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
+                        <Ellipse Width="28" Height="28" Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay}">
                             <Ellipse.Fill>
                                 <ImageBrush ImageSource="{x:Bind ViewModel.User.Photo, Mode=OneWay}" Stretch="UniformToFill" />
                             </Ellipse.Fill>
@@ -89,13 +88,13 @@
                             Text="{x:Bind ViewModel.User.Name, Mode=OneWay}"
                             VerticalAlignment="Center"                            
                             Style="{ThemeResource BodyTextBlockStyle}"
-                            Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource BoolToVisibility}}" />
+                            Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay}" />
                         <TextBlock
                             Grid.Column="1"
                             x:Uid="Shell_LogIn"
                             VerticalAlignment="Center"                            
                             Style="{ThemeResource BodyTextBlockStyle}"
-                            Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibility}}" />
+                            Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay}" />
                     </Grid>
                 </Button>
             </Grid>

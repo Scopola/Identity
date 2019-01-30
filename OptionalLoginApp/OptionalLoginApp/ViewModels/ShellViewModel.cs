@@ -103,25 +103,18 @@ namespace OptionalLoginApp.ViewModels
         }
 
         private async void OnLoggedIn(object sender, EventArgs e)
-        {
-            await GetUserDataAsync();
-        }
+            => await GetUserDataAsync();
 
         private async void OnLoggedOut(object sender, EventArgs e)
         {
             await GetUserDataAsync();
 
-            // Remove all restricted pages from navigation back stack
-            foreach (var backStack in NavigationService.Frame.BackStack)
-            {
-                var menuItem = _navigationView.MenuItems
+            var restrictedPageTypes = _navigationView.MenuItems
                             .OfType<WinUI.NavigationViewItem>()
-                            .FirstOrDefault(navViewItem => IsMenuItemForPageType(navViewItem, backStack.SourcePageType));
-                if (menuItem != null && NavHelper.GetRestricted(menuItem))
-                {
-                    NavigationService.Frame.BackStack.Remove(backStack);
-                }
-            }
+                            .Where(navViewItem => NavHelper.GetRestricted(navViewItem))
+                            .Select(navViewItem => NavHelper.GetNavigateTo(navViewItem));
+
+            NavigationService.Frame.RemoveFromBackStack(restrictedPageTypes);
         }
 
         private async Task GetUserDataAsync()
@@ -135,6 +128,10 @@ namespace OptionalLoginApp.ViewModels
                 {
                     User = _userDataService.GetDefaultUserData();
                 }
+            }
+            else
+            {
+                User = null;
             }
         }
 
