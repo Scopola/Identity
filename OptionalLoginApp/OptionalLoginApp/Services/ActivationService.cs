@@ -59,9 +59,7 @@ namespace OptionalLoginApp.Services
 
         private async Task HandleActivationAsync(object activationArgs)
         {
-            var activationHandler = GetActivationHandlers()
-                                                .FirstOrDefault(h => h.CanHandle(activationArgs));
-
+            var activationHandler = await GetActivationHandlerForArgs(activationArgs);
             if (activationHandler != null)
             {
                 await activationHandler.HandleAsync(activationArgs);
@@ -69,12 +67,30 @@ namespace OptionalLoginApp.Services
 
             if (IsInteractive(activationArgs))
             {
-                var defaultHandler = new DefaultLaunchActivationHandler(_defaultNavItem);
-                if (defaultHandler.CanHandle(activationArgs))
+                var defaultHandler = new DefaultActivationHandler(_defaultNavItem);
+                if (await defaultHandler.CanHandleAsync(activationArgs))
                 {
                     await defaultHandler.HandleAsync(activationArgs);
                 }
             }
+        }
+
+        private async Task<ActivationHandler> GetActivationHandlerForArgs(object activationArgs)
+        {
+            foreach (var handler in GetActivationHandlers())
+            {
+                if (await handler.CanHandleAsync(activationArgs))
+                {
+                    return handler;
+                }
+            }
+
+            return null;
+        }
+
+        private IEnumerable<ActivationHandler> GetActivationHandlers()
+        {
+            yield return Singleton<SchemeActivationHandler>.Instance;
         }
 
         private async Task InitializeAsync()
@@ -86,11 +102,6 @@ namespace OptionalLoginApp.Services
         {
             await ThemeSelectorService.SetRequestedThemeAsync();
             await UserActivityService.AddSampleUserActivity();
-        }
-
-        private IEnumerable<ActivationHandler> GetActivationHandlers()
-        {
-            yield return Singleton<SchemeActivationHandler>.Instance;
         }
 
         private bool IsInteractive(object args)

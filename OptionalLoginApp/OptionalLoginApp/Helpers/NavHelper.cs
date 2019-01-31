@@ -18,20 +18,7 @@ namespace OptionalLoginApp.Helpers
             item.SetValue(NavigateToProperty, value);
         }
 
-        public static bool GetRestricted(NavigationViewItem item)
-        {
-            return (bool)item.GetValue(RestrictedProperty);
-        }
-
-        public static void SetRestricted(NavigationViewItem item, bool value)
-        {
-            item.SetValue(RestrictedProperty, value);
-        }
-
         public static readonly DependencyProperty NavigateToProperty =
             DependencyProperty.RegisterAttached("NavigateTo", typeof(Type), typeof(NavHelper), new PropertyMetadata(null));
-
-        public static readonly DependencyProperty RestrictedProperty =
-            DependencyProperty.RegisterAttached("Restricted", typeof(bool), typeof(NavHelper), new PropertyMetadata(false));
     }
 }

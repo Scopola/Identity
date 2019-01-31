@@ -8,13 +8,10 @@ using OptionalLoginApp.Core.Services;
 using OptionalLoginApp.Helpers;
 using OptionalLoginApp.Services;
 using OptionalLoginApp.Views;
-
 using Windows.System;
-using Windows.UI.Popups;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
-
 using WinUI = Microsoft.UI.Xaml.Controls;
 
 namespace OptionalLoginApp.ViewModels
@@ -91,7 +88,7 @@ namespace OptionalLoginApp.ViewModels
             _navigationView.BackRequested += OnBackRequested;
             _identityService.LoggedIn += OnLoggedIn;
             _identityService.LoggedOut += OnLoggedOut;
-        }        
+        }
 
         private async void OnLoaded()
         {
@@ -111,7 +108,7 @@ namespace OptionalLoginApp.ViewModels
 
             var restrictedPageTypes = _navigationView.MenuItems
                             .OfType<WinUI.NavigationViewItem>()
-                            .Where(navViewItem => NavHelper.GetRestricted(navViewItem))
+                            .Where(navViewItem => AuthHelper.GetRestricted(navViewItem))
                             .Select(navViewItem => NavHelper.GetNavigateTo(navViewItem));
 
             NavigationService.Frame.RemoveFromBackStack(restrictedPageTypes);
@@ -144,7 +141,7 @@ namespace OptionalLoginApp.ViewModels
             else
             {
                 IsBusy = true;
-                var loginResult = await _identityService.LoginAsync();
+                await _identityService.LoginAsync();                
                 IsBusy = false;
             }
         }
@@ -187,7 +184,7 @@ namespace OptionalLoginApp.ViewModels
         {
             var pageType = menuItem.GetValue(NavHelper.NavigateToProperty) as Type;
             return pageType == sourcePageType;
-        }       
+        }
 
         private static KeyboardAccelerator BuildKeyboardAccelerator(VirtualKey key, VirtualKeyModifiers? modifiers = null)
         {

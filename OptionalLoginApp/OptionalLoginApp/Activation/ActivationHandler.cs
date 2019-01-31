@@ -6,7 +6,7 @@ namespace OptionalLoginApp.Activation
     // For more information on application activation see https://github.com/Microsoft/WindowsTemplateStudio/blob/master/docs/activation.md
     internal abstract class ActivationHandler
     {
-        public abstract bool CanHandle(object args);
+        public abstract Task<bool> CanHandleAsync(object args);
 
         public abstract Task HandleAsync(object args);
     }
@@ -21,13 +21,14 @@ namespace OptionalLoginApp.Activation
             await HandleInternalAsync(args as T);
         }
 
-        public override bool CanHandle(object args)
+        public override async Task<bool> CanHandleAsync(object args)
         {
-            return args is T && CanHandleInternal(args as T);
+            return args is T && await CanHandleInternal(args as T);
         }
 
-        protected virtual bool CanHandleInternal(T args)
+        protected virtual async Task<bool> CanHandleInternal(T args)
         {
+            await Task.CompletedTask;
             return true;
         }
     }

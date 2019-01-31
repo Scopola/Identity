@@ -194,7 +194,7 @@
   <data name="StatusLoginFails" xml:space="preserve">
     <value>Something went wrong during the login, please try again.</value>
   </data>
-  <data name="StatusNoNetworkAvailable" xml:space="preserve">
+  <data name="DialogNoNetworkAvailableContent" xml:space="preserve">
     <value>There is no internet connection, please connect to the internet and try again.</value>
   </data>
   <data name="Settings_User.Text" xml:space="preserve">
@@ -214,5 +214,20 @@
   </data>
   <data name="SchemeActivationSamplePage_Description.Text" xml:space="preserve">
     <value>This is a sample page that will show activation parameters if the app is activated from Deep Linking.</value>
+  </data>
+  <data name="DialogCommandCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="DialogAuthenticationActivationContent" xml:space="preserve">
+    <value>Activation from UserActivity is restricted content to logged in users. You need to be logged in to visit this content.</value>
+  </data>
+  <data name="DialogCommandLogIn" xml:space="preserve">
+    <value>Log in</value>
+  </data>
+  <data name="DialogAuthenticationTitle" xml:space="preserve">
+    <value>Application Authentication</value>
+  </data>
+  <data name="DialogStatusUnknownErrorContent" xml:space="preserve">
+    <value>Something went wrong during the login, please try again.</value>
   </data>
 </root>

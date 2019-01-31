@@ -8,7 +8,7 @@ using OptionalLoginApp.Core.Helpers;
 
 namespace OptionalLoginApp.Core.Services
 {
-    public class IdentityService
+    public abstract class IdentityServiceBase
     {
         //// Read more about Microsoft Identity Client here
         //// https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki
@@ -52,7 +52,7 @@ namespace OptionalLoginApp.Core.Services
 
         public bool IsLoggedIn() => _authenticationResult != null;
 
-        public async Task<LoginResultType> LoginAsync()
+        protected async Task<LoginResultType> InternalLoginAsync()
         {
             if (!NetworkInterface.GetIsNetworkAvailable())
             {
