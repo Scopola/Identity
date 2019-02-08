@@ -120,9 +120,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Activation\ActivationHandler.cs" />
-    <Compile Include="Activation\SchemeActivationConfig.cs" />
-    <Compile Include="Activation\SchemeActivationData.cs" />
-    <Compile Include="Activation\SchemeActivationHandler.cs" />
     <Compile Include="Behaviors\NavigationViewHeaderBehavior.cs" />
     <Compile Include="Behaviors\NavigationViewHeaderMode.cs" />
     <Compile Include="Helpers\EnumToBooleanConverter.cs" />
@@ -133,17 +130,12 @@
     <Compile Include="Helpers\SettingsStorageExtensions.cs" />
     <Compile Include="Services\ActivationService.cs" />
     <Compile Include="Activation\DefaultActivationHandler.cs" />
-    <Compile Include="Services\IdentityService.cs" />
-    <Compile Include="Services\MessageDialogService.cs" />
+    <Compile Include="Helpers\AuthenticationHelper.cs" />
     <Compile Include="Services\NavigationService.cs" />
     <Compile Include="Services\ThemeSelectorService.cs" />
-    <Compile Include="Services\UserActivityData.cs" />
-    <Compile Include="Services\UserActivityService.Sample.cs" />
-    <Compile Include="Services\UserActivityService.cs" />
     <Compile Include="Services\UserDataService.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\RestrictedContentViewModel.cs" />
-    <Compile Include="ViewModels\SchemeActivationSampleViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
     <Compile Include="ViewModels\UserViewModel.cs" />
@@ -153,9 +145,6 @@
     </Compile>
     <Compile Include="Views\RestrictedContentPage.xaml.cs">
       <DependentUpon>RestrictedContentPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SchemeActivationSamplePage.xaml.cs">
-      <DependentUpon>SchemeActivationSamplePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
@@ -198,10 +187,6 @@
     <Page Include="Views\RestrictedContentPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\SchemeActivationSamplePage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SettingsPage.xaml">
       <Generator>MSBuild:Compile</Generator>

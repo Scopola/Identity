@@ -90,7 +90,7 @@ namespace OptionalLoginApp.Services
 
         private IEnumerable<ActivationHandler> GetActivationHandlers()
         {
-            yield return Singleton<SchemeActivationHandler>.Instance;
+            yield break;
         }
 
         private async Task InitializeAsync()
@@ -101,7 +101,6 @@ namespace OptionalLoginApp.Services
         private async Task StartupAsync()
         {
             await ThemeSelectorService.SetRequestedThemeAsync();
-            await UserActivityService.AddSampleUserActivity();
         }
 
         private bool IsInteractive(object args)

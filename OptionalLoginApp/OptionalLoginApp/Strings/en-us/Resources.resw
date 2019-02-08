@@ -183,10 +183,6 @@
   <data name="Shell_LogOut.Content" xml:space="preserve">
     <value>Log out</value>
   </data>
-  <data name="MasterDetail_NoSelection.Text" xml:space="preserve">
-    <value>Select an item from the list.</value>
-    <comment>No selection text for MasterDetail</comment>
-  </data>
   <data name="Shell_RestrictedContent.Content" xml:space="preserve">
     <value>RestrictedContent</value>
     <comment>Navigation view item name for RestrictedContent</comment>
@@ -208,21 +204,6 @@
   </data>
   <data name="Settings_NoUserLoggedIn.Text" xml:space="preserve">
     <value>There is no user logged in, please click "Log In" to log in.</value>
-  </data>
-  <data name="Shell_SchemeActivationSample.Content" xml:space="preserve">
-    <value>SchemeActivationSample</value>
-  </data>
-  <data name="SchemeActivationSamplePage_Description.Text" xml:space="preserve">
-    <value>This is a sample page that will show activation parameters if the app is activated from Deep Linking.</value>
-  </data>
-  <data name="DialogCommandCancel" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="DialogAuthenticationActivationContent" xml:space="preserve">
-    <value>Activation from UserActivity is restricted content to logged in users. You need to be logged in to visit this content.</value>
-  </data>
-  <data name="DialogCommandLogIn" xml:space="preserve">
-    <value>Log in</value>
   </data>
   <data name="DialogAuthenticationTitle" xml:space="preserve">
     <value>Application Authentication</value>

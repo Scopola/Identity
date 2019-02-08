@@ -37,10 +37,6 @@
                 Icon="Document"
                 helpers:NavHelper.NavigateTo="views:RestrictedContentPage"
                 Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay}" />
-            <winui:NavigationViewItem
-                x:Uid="Shell_SchemeActivationSample"
-                Icon="Document"
-                helpers:NavHelper.NavigateTo="views:SchemeActivationSamplePage" />
         </winui:NavigationView.MenuItems>
         <i:Interaction.Behaviors>
             <behaviors:NavigationViewHeaderBehavior

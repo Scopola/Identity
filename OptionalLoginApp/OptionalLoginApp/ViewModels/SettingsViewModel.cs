@@ -137,7 +137,11 @@ namespace OptionalLoginApp.ViewModels
             }
             else
             {
-                await _identityService.LoginAsync();
+                var loginResult = await _identityService.LoginAsync();
+                if (loginResult != LoginResultType.Success)
+                {
+                    await AuthenticationHelper.ShowLoginErrorAsync(loginResult);
+                }
             }
             IsBusy = false;
             
