@@ -106,12 +106,14 @@ namespace OptionalLoginApp.ViewModels
         {
             await GetUserDataAsync();
 
-            var restrictedPageTypes = _navigationView.MenuItems
-                            .OfType<WinUI.NavigationViewItem>()
-                            .Where(navViewItem => AuthHelper.GetRestricted(navViewItem))
-                            .Select(navViewItem => NavHelper.GetNavigateTo(navViewItem));
-
-            NavigationService.Frame.RemoveFromBackStack(restrictedPageTypes);
+            foreach (var backStack in NavigationService.Frame.BackStack)
+            {
+                var authenticationRequired = Attribute.GetCustomAttributes(backStack.SourcePageType, typeof(AuthenticationRequired)).Any();
+                if (authenticationRequired)
+                {
+                    NavigationService.Frame.BackStack.Remove(backStack);
+                }
+            }
         }
 
         private async Task GetUserDataAsync()

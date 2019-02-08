@@ -36,14 +36,11 @@
                 x:Uid="Shell_RestrictedContent"
                 Icon="Document"
                 helpers:NavHelper.NavigateTo="views:RestrictedContentPage"
-                helpers:AuthHelper.Restricted="True"
                 Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay}" />
             <winui:NavigationViewItem
                 x:Uid="Shell_SchemeActivationSample"
                 Icon="Document"
-                helpers:NavHelper.NavigateTo="views:SchemeActivationSamplePage"
-                helpers:AuthHelper.Restricted="True"
-                Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay}" />
+                helpers:NavHelper.NavigateTo="views:SchemeActivationSamplePage" />
         </winui:NavigationView.MenuItems>
         <i:Interaction.Behaviors>
             <behaviors:NavigationViewHeaderBehavior
