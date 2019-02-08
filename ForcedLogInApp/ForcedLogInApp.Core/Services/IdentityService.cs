@@ -108,6 +108,8 @@ namespace ForcedLogInApp.Core.Services
             catch (MsalException)
             {
                 // TODO WTS: LogoutAsync can fail please handle exceptions as appropriate to your scenario
+                // For more info on MsalExceptions see
+                // https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/exceptions
             }
         }
 
@@ -153,8 +155,16 @@ namespace ForcedLogInApp.Core.Services
 
                 return true;
             }
+            catch (MsalUiRequiredException)
+            {
+                // Interactive authentication is required
+                return false;
+            }
             catch (MsalException)
             {
+                // TODO WTS: Silentauth failed, please handle this exception as appropriate to your scenario
+                // For more info on MsalExceptions see
+                // https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/exceptions
                 return false;
             }
         }
