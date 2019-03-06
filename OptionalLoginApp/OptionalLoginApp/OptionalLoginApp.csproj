@@ -96,7 +96,7 @@
       <Version>1.1.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.2.0-preview1-26926-04</Version>
+      <Version>6.1.9</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Controls">
       <Version>5.1.0</Version>
@@ -112,7 +112,7 @@
       <Version>12.0.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.1.190218001-prerelease</Version>
+      <Version>2.0.181018004</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
