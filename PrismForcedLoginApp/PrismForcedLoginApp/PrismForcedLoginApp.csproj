@@ -153,6 +153,9 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="PrismForcedLoginApp_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

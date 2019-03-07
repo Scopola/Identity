@@ -224,6 +224,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
+    <Content Include="App.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="OptionalLoginApp_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

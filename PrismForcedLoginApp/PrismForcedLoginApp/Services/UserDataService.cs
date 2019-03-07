@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PrismForcedLoginApp.Core.Helpers;
-using PrismForcedLoginApp.Core.Models;
+﻿using PrismForcedLoginApp.Core.Models;
 using PrismForcedLoginApp.Core.Services;
 using PrismForcedLoginApp.Helpers;
 using PrismForcedLoginApp.ViewModels;
+using System;
+using System.Threading.Tasks;
 using Windows.Storage;
 
 namespace PrismForcedLoginApp.Services
@@ -16,7 +12,7 @@ namespace PrismForcedLoginApp.Services
     {
         private const string _userSettingsKey = "IdentityUser";
 
-        private IIdentityService _identityService;       
+        private IIdentityService _identityService;
         private IMicrosoftGraphService _microsoftGraphService;
 
         public UserDataService(IIdentityService identityService, IMicrosoftGraphService microsoftGraphService)

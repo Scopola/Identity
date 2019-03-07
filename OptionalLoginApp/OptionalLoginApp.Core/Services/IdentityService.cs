@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Configuration;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
-using OptionalLoginApp.Core.Configuration;
+using Microsoft.Identity.Client.AppConfig;
 using OptionalLoginApp.Core.Helpers;
 
 namespace OptionalLoginApp.Core.Services
@@ -14,40 +15,43 @@ namespace OptionalLoginApp.Core.Services
         //// https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki
         //// https://docs.microsoft.com/azure/active-directory/develop/v2-overview
 
-        private const string _loginEndpoint = "https://login.microsoftonline.com";
-        private const string _commonAuthority = "common";
-        private const string _organizationsAuthority = "organizations";
         private readonly string[] _scopes = new string[] { "user.read" };
 
         private bool _integratedAuthAvailable;
-        private PublicClientApplication _client;
+        private IPublicClientApplication _client;
         private AuthenticationResult _authenticationResult;
 
+        // TODO WTS: Add your Identity Client ID in your App.config file
+        // Follow these steps to register your application
+        // with Azure Active Directory and obtain a new Client ID
+        // https://docs.microsoft.com/azure/active-directory/develop/quickstart-register-app
+        private string _clientId => ConfigurationManager.AppSettings["IdentityClientId"];
+
         public event EventHandler LoggedIn;
-        public event EventHandler LoggedOut;
+        public event EventHandler LoggedOut;        
 
-        public async Task<bool> LoginWithCommonAuthorityAsync()
+        public void InitializeWithAadAndPersonalMsAccounts()
         {
-            // AAD and MSA accounts
             _integratedAuthAvailable = false;
-            _client = new PublicClientApplication(AppSecrets.IdentityClientId, $"{_loginEndpoint}/{_commonAuthority}/");
-            return await SilentLoginAsync();
+            _client = PublicClientApplicationBuilder.Create(_clientId)
+                                                    .WithAuthority(AadAuthorityAudience.AzureAdAndPersonalMicrosoftAccount)
+                                                    .Build();
         }
 
-        public async Task<bool> LoginWithOrganizationsAuthorityAsync(bool integratedAuth = false)
+        public void InitializeWithAadMultipleOrgs(bool integratedAuth = false)
         {
-            // All AAD and Integrated Auth
             _integratedAuthAvailable = integratedAuth;
-            _client = new PublicClientApplication(AppSecrets.IdentityClientId, $"{_loginEndpoint}/{_organizationsAuthority}/");
-            return await SilentLoginAsync();
+            _client = PublicClientApplicationBuilder.Create(_clientId)
+                                                    .WithAuthority(AadAuthorityAudience.AzureAdMultipleOrgs)
+                                                    .Build();
         }
 
-        public async Task<bool> LoginWithTenantAuthority(string tenantId, bool integratedAuth = false)
+        public void InitializeWithAadSingleOrg(string tenant, bool integratedAuth = false)
         {
-            // Single domain AAD and Integrated Auth
             _integratedAuthAvailable = integratedAuth;
-            _client = new PublicClientApplication(AppSecrets.IdentityClientId, $"{_loginEndpoint}/{tenantId}/");
-            return await SilentLoginAsync();
+            _client = PublicClientApplicationBuilder.Create(_clientId)
+                                                    .WithAuthority(AzureCloudInstance.AzurePublic, tenant)
+                                                    .Build();
         }
 
         public bool IsLoggedIn() => _authenticationResult != null;
@@ -62,11 +66,9 @@ namespace OptionalLoginApp.Core.Services
             try
             {
                 var accounts = await _client.GetAccountsAsync();
-                var firstAccount = accounts.FirstOrDefault();
-
-                _authenticationResult = firstAccount != null
-                    ? await _client.AcquireTokenAsync(_scopes, firstAccount)
-                    : await _client.AcquireTokenAsync(_scopes);
+                _authenticationResult = await _client.AcquireTokenInteractive(_scopes, null)
+                                                     .WithAccount(accounts.FirstOrDefault())
+                                                     .ExecuteAsync();
 
                 LoggedIn?.Invoke(this, EventArgs.Empty);
                 return LoginResultType.Success;
@@ -135,7 +137,7 @@ namespace OptionalLoginApp.Core.Services
             }
         }
 
-        private async Task<bool> SilentLoginAsync()
+        public async Task<bool> SilentLoginAsync()
         {
             if (!NetworkInterface.GetIsNetworkAvailable())
             {
@@ -145,12 +147,15 @@ namespace OptionalLoginApp.Core.Services
             {
                 if (_integratedAuthAvailable)
                 {
-                    _authenticationResult = await _client.AcquireTokenByIntegratedWindowsAuthAsync(_scopes);
+                    _authenticationResult = await _client.AcquireTokenByIntegratedWindowsAuth(_scopes)
+                                                         .ExecuteAsync();
                 }
                 else
                 {
                     var accounts = await _client.GetAccountsAsync();
-                    _authenticationResult = await _client.AcquireTokenSilentAsync(_scopes, accounts.FirstOrDefault());
+                    _authenticationResult = await _client.AcquireTokenSilent(_scopes)
+                                                         .WithAccount(accounts.FirstOrDefault())
+                                                         .ExecuteAsync();
                 }
 
                 return true;

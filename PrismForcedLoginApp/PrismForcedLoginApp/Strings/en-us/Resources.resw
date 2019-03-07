@@ -178,12 +178,21 @@
     <comment>Parameter must be an Enum name in enum to boolean converter</comment>
   </data>
   <data name="ShellLoginButton.Content" xml:space="preserve">
-    <value>Log In</value>
+    <value>Click to log in</value>
   </data>
   <data name="Settings_LogOut.Content" xml:space="preserve">
     <value>Log out</value>
   </data>
   <data name="Settings_User.Text" xml:space="preserve">
     <value>User</value>
+  </data>
+  <data name="StatusLoginFails" xml:space="preserve">
+    <value>Something went wrong during the login, please try again.</value>
+  </data>
+  <data name="StatusNoNetworkAvailable" xml:space="preserve">
+    <value>There is no internet connection, please connect to the internet and try again.</value>
+  </data>
+  <data name="LogInPageTitle.Text" xml:space="preserve">
+    <value>LogIn</value>
   </data>
 </root>

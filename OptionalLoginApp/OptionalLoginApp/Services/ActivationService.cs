@@ -34,7 +34,8 @@ namespace OptionalLoginApp.Services
                 // Initialize things like registering background task before the app is loaded
                 await InitializeAsync();
 
-                await _identityService.LoginWithCommonAuthorityAsync();
+                _identityService.InitializeWithAadAndPersonalMsAccounts();
+                await _identityService.SilentLoginAsync();
 
                 // Do not repeat app initialization when the Window already has content,
                 // just ensure that the window is active

@@ -9,11 +9,11 @@ namespace PrismForcedLoginApp.Core.Services
         event EventHandler LoggedIn;
         event EventHandler LoggedOut;
 
-        Task<bool> LoginWithCommonAuthorityAsync();
+        void InitializeWithAadAndPersonalMsAccounts();
 
-        Task<bool> LoginWithOrganizationsAuthorityAsync(bool integratedAuth = false);
+        void InitializeWithAadMultipleOrgs(bool integratedAuth = false);
 
-        Task<bool> LoginWithTenantAuthority(string tenantId, bool integratedAuth = false);
+        void InitializeWithAadSingleOrg(string tenantId, bool integratedAuth = false);
 
         bool IsLoggedIn();
 
@@ -23,6 +23,8 @@ namespace PrismForcedLoginApp.Core.Services
 
         Task LogoutAsync();
 
-        Task<string> GetAccessTokenAsync();        
+        Task<string> GetAccessTokenAsync();
+
+        Task<bool> SilentLoginAsync();
     }
 }

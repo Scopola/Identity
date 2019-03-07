@@ -18,7 +18,7 @@ namespace PrismForcedLoginApp.ViewModels
     public class SettingsViewModel : ViewModelBase
     {
         private IIdentityService _identityService;
-        private UserDataService _userDataService;
+        private IUserDataService _userDataService;
         private ElementTheme _elementTheme = ThemeSelectorService.Theme;
         private UserViewModel _user;
 
@@ -66,7 +66,7 @@ namespace PrismForcedLoginApp.ViewModels
             set { SetProperty(ref _user, value); }
         }
 
-        public SettingsViewModel(IIdentityService identityService, UserDataService userDataService)
+        public SettingsViewModel(IIdentityService identityService, IUserDataService userDataService)
         {
             _identityService = identityService;
             _userDataService = userDataService;

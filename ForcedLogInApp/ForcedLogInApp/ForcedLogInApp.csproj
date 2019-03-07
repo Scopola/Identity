@@ -198,6 +198,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="ForcedLogInApp_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

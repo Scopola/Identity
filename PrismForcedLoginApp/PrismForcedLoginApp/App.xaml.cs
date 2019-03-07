@@ -31,10 +31,13 @@ namespace PrismForcedLoginApp
         {
             // register a singleton using Container.RegisterType<IInterface, Type>(new ContainerControlledLifetimeManager());
             base.ConfigureContainer();
-            Container.RegisterInstance<IResourceLoader>(new ResourceLoaderAdapter(new ResourceLoader()));            
-            Container.RegisterInstance<IIdentityService>(new IdentityService());
-            Container.RegisterType<IMicrosoftGraphService, MicrosoftGraphService>();
-            Container.RegisterType<IUserDataService, UserDataService>();
+            var identityService = new IdentityService();
+            var microsoftGraphService = new MicrosoftGraphService();
+            var userDataService = new UserDataService(identityService, microsoftGraphService);
+            Container.RegisterInstance<IResourceLoader>(new ResourceLoaderAdapter(new ResourceLoader()));
+            Container.RegisterInstance<IIdentityService>(identityService);
+            Container.RegisterInstance<IMicrosoftGraphService>(microsoftGraphService);
+            Container.RegisterInstance<IUserDataService>(userDataService);
         }
 
         protected override async Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
@@ -57,7 +60,8 @@ namespace PrismForcedLoginApp
         protected override async Task OnInitializeAsync(IActivatedEventArgs args)
         {
             var identityService = Container.Resolve<IIdentityService>();
-            var silentLoginSuccess = await identityService.LoginWithCommonAuthorityAsync();
+            identityService.InitializeWithAadAndPersonalMsAccounts();
+            var silentLoginSuccess = await identityService.SilentLoginAsync();
             await ThemeSelectorService.InitializeAsync().ConfigureAwait(false);
 
             // We are remapping the default ViewNamePage and ViewNamePageViewModel naming to ViewNamePage and ViewNameViewModel to

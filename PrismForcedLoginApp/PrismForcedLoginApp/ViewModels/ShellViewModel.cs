@@ -10,35 +10,59 @@ using PrismForcedLoginApp.Views;
 using Prism.Commands;
 using Prism.Windows.Mvvm;
 using Prism.Windows.Navigation;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
 using WinUI = Microsoft.UI.Xaml.Controls;
+using PrismForcedLoginApp.Core.Helpers;
 
 namespace PrismForcedLoginApp.ViewModels
 {
     public class ShellViewModel : ViewModelBase
     {
+        private bool _isBusy;
         private bool _isLoggedIn;
-        private static INavigationService _navigationService;
+        private string _statusMessage;
+        private UserViewModel _user;
+        private INavigationService _navigationService;
         private IIdentityService _identityService;
-        private UserDataService _userDataService;
+        private IUserDataService _userDataService;
         private WinUI.NavigationView _navigationView;
         private bool _isBackEnabled;
         private WinUI.NavigationViewItem _selected;
-        private UserViewModel _user;
 
         public ICommand ItemInvokedCommand { get; }
 
-        public ICommand LoginCommand { get; }
+        public DelegateCommand LoginCommand { get; }
 
         public ICommand UserProfileCommand { get; }
+
+        public bool IsBusy
+        {
+            get { return _isBusy; }
+            set
+            {
+                SetProperty(ref _isBusy, value);
+                LoginCommand.RaiseCanExecuteChanged();
+            }
+        }
 
         public bool IsLoggedIn
         {
             get { return _isLoggedIn; }
             set { SetProperty(ref _isLoggedIn, value); }
+        }
+
+        public string StatusMessage
+        {
+            get { return _statusMessage; }
+            set { SetProperty(ref _statusMessage, value); }
+        }
+
+        public UserViewModel User
+        {
+            get { return _user; }
+            set { SetProperty(ref _user, value); }
         }
 
         public bool IsBackEnabled
@@ -53,19 +77,13 @@ namespace PrismForcedLoginApp.ViewModels
             set { SetProperty(ref _selected, value); }
         }
 
-        public UserViewModel User
-        {
-            get { return _user; }
-            set { SetProperty(ref _user, value); }
-        }
-
-        public ShellViewModel(INavigationService navigationServiceInstance, UserDataService userDataService, IIdentityService identityService)
+        public ShellViewModel(INavigationService navigationServiceInstance, IUserDataService userDataService, IIdentityService identityService)
         {
             _navigationService = navigationServiceInstance;
             _userDataService = userDataService;
             _identityService = identityService;
             ItemInvokedCommand = new DelegateCommand<WinUI.NavigationViewItemInvokedEventArgs>(OnItemInvoked);
-            LoginCommand = new DelegateCommand(OnLogin);
+            LoginCommand = new DelegateCommand(OnLogin, () => !IsBusy);
             UserProfileCommand = new DelegateCommand(OnUserProfile);
         }
 
@@ -90,14 +108,11 @@ namespace PrismForcedLoginApp.ViewModels
             await GetUserData();
         }
 
-        private async void OnLoggedOut(object sender, EventArgs e)
+        private void OnLoggedOut(object sender, EventArgs e)
         {
-            await Window.Current.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () =>
-            {
-                IsLoggedIn = false;
-                _navigationService.Navigate(PageTokens.MainPage, null);
-                _navigationService.ClearHistory();
-            });
+            IsLoggedIn = false;
+            _navigationService.Navigate(PageTokens.MainPage, null);
+            _navigationService.ClearHistory();
         }
 
         private async Task GetUserData()
@@ -126,7 +141,25 @@ namespace PrismForcedLoginApp.ViewModels
 
         private async void OnLogin()
         {
-            await _identityService.LoginAsync();
+            //await _identityService.LoginAsync();
+            IsBusy = true;
+            StatusMessage = string.Empty;
+            var loginResult = await _identityService.LoginAsync();
+            StatusMessage = GetStatusMessage(loginResult);
+            IsBusy = false;
+        }
+
+        private string GetStatusMessage(LoginResultType loginResult)
+        {
+            switch (loginResult)
+            {
+                case LoginResultType.NoNetworkAvailable:
+                    return "StatusNoNetworkAvailable".GetLocalized();
+                case LoginResultType.UnknownError:
+                    return "StatusLoginFails".GetLocalized();
+                default:
+                    return string.Empty;
+            }
         }
 
         private void OnUserProfile()
