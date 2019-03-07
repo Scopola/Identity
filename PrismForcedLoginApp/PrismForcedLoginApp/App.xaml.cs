@@ -61,7 +61,7 @@ namespace PrismForcedLoginApp
         {
             var identityService = Container.Resolve<IIdentityService>();
             identityService.InitializeWithAadAndPersonalMsAccounts();
-            var silentLoginSuccess = await identityService.SilentLoginAsync();
+            await identityService.SilentLoginAsync();
             await ThemeSelectorService.InitializeAsync().ConfigureAwait(false);
 
             // We are remapping the default ViewNamePage and ViewNamePageViewModel naming to ViewNamePage and ViewNameViewModel to

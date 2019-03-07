@@ -99,7 +99,10 @@ namespace PrismForcedLoginApp.ViewModels
             _identityService.LoggedIn += OnLoggedIn;
             _identityService.LoggedOut += OnLoggedOut;
             IsLoggedIn = _identityService.IsLoggedIn();
-            await GetUserData();
+            if (IsLoggedIn)
+            {
+                await GetUserData();
+            }
         }
 
         private async void OnLoggedIn(object sender, EventArgs e)
@@ -117,11 +120,8 @@ namespace PrismForcedLoginApp.ViewModels
 
         private async Task GetUserData()
         {
-            if (IsLoggedIn)
-            {
-                User = await _userDataService.GetUserFromCacheAsync();
-                User = await _userDataService.GetUserFromGraphApiAsync();
-            }
+            User = await _userDataService.GetUserFromCacheAsync();
+            User = await _userDataService.GetUserFromGraphApiAsync();
         }
 
         private void OnItemInvoked(WinUI.NavigationViewItemInvokedEventArgs args)
