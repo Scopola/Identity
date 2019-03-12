@@ -47,10 +47,12 @@ namespace ForcedLogInApp.ViewModels
         {
             switch (loginResult)
             {
+                case LoginResultType.Unauthorized:
+                    return "StatusUnauthorized".GetLocalized();
                 case LoginResultType.NoNetworkAvailable:
                     return "StatusNoNetworkAvailable".GetLocalized();                    
                 case LoginResultType.UnknownError:
-                    return "StatusLoginFails".GetLocalized();                    
+                    return "StatusLoginFails".GetLocalized();
                 default:
                     return string.Empty;
             }

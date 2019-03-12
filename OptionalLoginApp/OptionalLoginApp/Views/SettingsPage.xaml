@@ -89,7 +89,8 @@
             <TextBlock
                 x:Uid="Settings_NoUserLoggedIn"
                 Margin="{StaticResource XSmallTopMargin}"
-                Style="{ThemeResource BodyTextBlockStyle}" />
+                Style="{ThemeResource BodyTextBlockStyle}"
+                Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibility}}" />
             <HyperlinkButton
                 x:Uid="Settings_LogIn"
                 Command="{x:Bind ViewModel.LogInOutCommand}"

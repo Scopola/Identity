@@ -195,4 +195,7 @@
   <data name="LogInPageTitle.Text" xml:space="preserve">
     <value>LogIn</value>
   </data>
+  <data name="StatusUnauthorized" xml:space="preserve">
+    <value>User is unauthorized</value>
+  </data>
 </root>

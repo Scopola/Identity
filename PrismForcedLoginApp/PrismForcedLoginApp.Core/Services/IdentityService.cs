@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.AppConfig;
 using PrismForcedLoginApp.Core.Helpers;
 
 namespace PrismForcedLoginApp.Core.Services
@@ -20,11 +19,15 @@ namespace PrismForcedLoginApp.Core.Services
         private IPublicClientApplication _client;
         private AuthenticationResult _authenticationResult;
 
-        // TODO WTS: Add your Identity Client ID in your App.config file
-        // Follow these steps to register your application
-        // with Azure Active Directory and obtain a new Client ID
+        // TODO WTS:
+        // The IdentityClientId in App.config is provided to test the project in development environments.
+        // Please, follow these steps to create a new one with Azure Active Directory and replace it before going to production.
         // https://docs.microsoft.com/azure/active-directory/develop/quickstart-register-app
         private string _clientId => ConfigurationManager.AppSettings["IdentityClientId"];
+
+        private const string _loginEndpoint = "https://login.microsoftonline.com";
+        private const string _commonAuthority = "common";
+        private const string _organizationsAuthority = "organizations";
 
         public event EventHandler LoggedIn;
         public event EventHandler LoggedOut;
@@ -32,25 +35,19 @@ namespace PrismForcedLoginApp.Core.Services
         public void InitializeWithAadAndPersonalMsAccounts()
         {
             _integratedAuthAvailable = false;
-            _client = PublicClientApplicationBuilder.Create(_clientId)
-                                                    .WithAuthority(AadAuthorityAudience.AzureAdAndPersonalMicrosoftAccount)
-                                                    .Build();
+            _client = new PublicClientApplication(_clientId, $"{_loginEndpoint}/{_commonAuthority}/");
         }
 
         public void InitializeWithAadMultipleOrgs(bool integratedAuth = false)
         {
             _integratedAuthAvailable = integratedAuth;
-            _client = PublicClientApplicationBuilder.Create(_clientId)
-                                                    .WithAuthority(AadAuthorityAudience.AzureAdMultipleOrgs)
-                                                    .Build();
+            _client = new PublicClientApplication(_clientId, $"{_loginEndpoint}/{_organizationsAuthority}/");
         }
 
         public void InitializeWithAadSingleOrg(string tenant, bool integratedAuth = false)
         {
             _integratedAuthAvailable = integratedAuth;
-            _client = PublicClientApplicationBuilder.Create(_clientId)
-                                                    .WithAuthority(AzureCloudInstance.AzurePublic, tenant)
-                                                    .Build();
+            _client = new PublicClientApplication(_clientId, $"{_loginEndpoint}/{tenant}/");
         }
 
         public bool IsLoggedIn() => _authenticationResult != null;
@@ -65,9 +62,12 @@ namespace PrismForcedLoginApp.Core.Services
             try
             {
                 var accounts = await _client.GetAccountsAsync();
-                _authenticationResult = await _client.AcquireTokenInteractive(_scopes, null)
-                                                     .WithAccount(accounts.FirstOrDefault())
-                                                     .ExecuteAsync();
+                _authenticationResult = await _client.AcquireTokenAsync(_scopes, accounts.FirstOrDefault());
+                if (!IsAuthorized())
+                {
+                    _authenticationResult = null;
+                    return LoginResultType.Unauthorized;
+                }
 
                 LoggedIn?.Invoke(this, EventArgs.Empty);
                 return LoginResultType.Success;
@@ -85,6 +85,13 @@ namespace PrismForcedLoginApp.Core.Services
             {
                 return LoginResultType.UnknownError;
             }
+        }
+
+        public bool IsAuthorized()
+        {
+            // TODO WTS: You can also add extra authorization checks here.
+            // i.e.: Checks permisions of _authenticationResult.Account.Username in a database.
+            return _authenticationResult.Account.Username.Contains("pasiona");
         }
 
         public string GetAccountUserName()
@@ -116,19 +123,14 @@ namespace PrismForcedLoginApp.Core.Services
 
         public async Task<string> GetAccessTokenAsync()
         {
-            if (!_authenticationResult.IsAccessTokenExpired())
-            {
-                return _authenticationResult.AccessToken;
-            }
-
-            var loginSuccess = await SilentLoginAsync();
-            if (loginSuccess)
+            var silentLoginSuccess = await SilentLoginAsync();
+            if (silentLoginSuccess)
             {
                 return _authenticationResult.AccessToken;
             }
             else
             {
-                // The token has expired and we can't obtain a new one
+                // SilentLoginAsync failed, reasons for failure might be that users have either signed out or changed their password on another device
                 // The session will be closed.
                 _authenticationResult = null;
                 LoggedOut?.Invoke(this, EventArgs.Empty);
@@ -146,15 +148,12 @@ namespace PrismForcedLoginApp.Core.Services
             {
                 if (_integratedAuthAvailable)
                 {
-                    _authenticationResult = await _client.AcquireTokenByIntegratedWindowsAuth(_scopes)
-                                                         .ExecuteAsync();
+                    _authenticationResult = await _client.AcquireTokenByIntegratedWindowsAuthAsync(_scopes);
                 }
                 else
                 {
                     var accounts = await _client.GetAccountsAsync();
-                    _authenticationResult = await _client.AcquireTokenSilent(_scopes)
-                                                         .WithAccount(accounts.FirstOrDefault())
-                                                         .ExecuteAsync();
+                    _authenticationResult = await _client.AcquireTokenSilentAsync(_scopes, accounts.FirstOrDefault());
                 }
 
                 return true;

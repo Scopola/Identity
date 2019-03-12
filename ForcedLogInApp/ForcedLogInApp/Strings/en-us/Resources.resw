@@ -213,4 +213,7 @@
   <data name="MainUpdateUserInfoButton.Content" xml:space="preserve">
     <value>Update user info</value>
   </data>
+  <data name="StatusUnauthorized" xml:space="preserve">
+    <value>User is unauthorized</value>
+  </data>
 </root>

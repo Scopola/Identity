@@ -39,7 +39,7 @@ namespace ForcedLogInApp.Services
                 await InitializeAsync();
                 _identityService.InitializeWithAadAndPersonalMsAccounts();
                 var silentLoginSuccess = await _identityService.SilentLoginAsync();
-                if (!silentLoginSuccess)
+                if (!silentLoginSuccess || !_identityService.IsAuthorized())
                 {
                     await RedirectLoginPageAsync();
                 }

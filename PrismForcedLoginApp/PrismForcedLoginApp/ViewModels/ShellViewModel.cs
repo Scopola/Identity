@@ -98,7 +98,7 @@ namespace PrismForcedLoginApp.ViewModels
             _navigationView.BackRequested += OnBackRequested;
             _identityService.LoggedIn += OnLoggedIn;
             _identityService.LoggedOut += OnLoggedOut;
-            IsLoggedIn = _identityService.IsLoggedIn();
+            IsLoggedIn = _identityService.IsLoggedIn() && _identityService.IsAuthorized();
             if (IsLoggedIn)
             {
                 await GetUserData();
@@ -153,6 +153,8 @@ namespace PrismForcedLoginApp.ViewModels
         {
             switch (loginResult)
             {
+                case LoginResultType.Unauthorized:
+                    return "StatusUnauthorized".GetLocalized();
                 case LoginResultType.NoNetworkAvailable:
                     return "StatusNoNetworkAvailable".GetLocalized();
                 case LoginResultType.UnknownError:

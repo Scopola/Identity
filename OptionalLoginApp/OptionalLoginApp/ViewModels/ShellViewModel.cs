@@ -23,6 +23,7 @@ namespace OptionalLoginApp.ViewModels
 
         private bool _isBackEnabled;
         private bool _isLoggedIn;
+        private bool _isAuthorized;
         private bool _isBusy;
         private IList<KeyboardAccelerator> _keyboardAccelerators;
         private WinUI.NavigationView _navigationView;
@@ -45,6 +46,12 @@ namespace OptionalLoginApp.ViewModels
         {
             get { return _isLoggedIn; }
             set { Set(ref _isLoggedIn, value); }
+        }
+
+        public bool IsAuthorized
+        {
+            get { return _isAuthorized; }
+            set { Set(ref _isAuthorized, value); }
         }
 
         public bool IsBusy
@@ -119,6 +126,7 @@ namespace OptionalLoginApp.ViewModels
         private async Task GetUserDataAsync()
         {
             IsLoggedIn = _identityService.IsLoggedIn();
+            IsAuthorized = IsLoggedIn && _identityService.IsAuthorized();
             if (IsLoggedIn)
             {
                 User = await _userDataService.GetUserFromCacheAsync();

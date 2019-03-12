@@ -17,6 +17,8 @@ namespace PrismForcedLoginApp.Core.Services
 
         bool IsLoggedIn();
 
+        bool IsAuthorized();
+
         Task<LoginResultType> LoginAsync();
 
         string GetAccountUserName();
