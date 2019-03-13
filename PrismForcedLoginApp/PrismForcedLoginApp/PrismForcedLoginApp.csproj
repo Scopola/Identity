@@ -164,9 +164,14 @@
   <ItemGroup>
     <Compile Include="Services\IUserDataService.cs" />
     <Compile Include="Services\UserDataService.cs" />
+    <Compile Include="ViewModels\GraphSampleViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Views\GraphSamplePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\ShellPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -174,6 +179,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ViewModels\UserViewModel.cs" />
+    <Compile Include="Views\GraphSamplePage.xaml.cs">
+      <DependentUpon>GraphSamplePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ShellPage.xaml.cs">
       <DependentUpon>ShellPage.xaml</DependentUpon>
     </Compile>

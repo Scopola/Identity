@@ -35,7 +35,7 @@ namespace OptionalLoginApp.Services
                 await InitializeAsync();
 
                 _identityService.InitializeWithAadAndPersonalMsAccounts();
-                await _identityService.SilentLoginAsync();
+                await _identityService.AcquireTokenSilentAsync();
 
                 // Do not repeat app initialization when the Window already has content,
                 // just ensure that the window is active

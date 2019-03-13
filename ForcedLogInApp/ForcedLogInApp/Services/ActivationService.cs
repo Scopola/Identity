@@ -38,7 +38,7 @@ namespace ForcedLogInApp.Services
                 // Initialize things like registering background task before the app is loaded
                 await InitializeAsync();
                 _identityService.InitializeWithAadAndPersonalMsAccounts();
-                var silentLoginSuccess = await _identityService.SilentLoginAsync();
+                var silentLoginSuccess = await _identityService.AcquireTokenSilentAsync();
                 if (!silentLoginSuccess || !_identityService.IsAuthorized())
                 {
                     await RedirectLoginPageAsync();

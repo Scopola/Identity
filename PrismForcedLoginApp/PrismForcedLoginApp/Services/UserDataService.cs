@@ -1,9 +1,10 @@
-﻿using PrismForcedLoginApp.Core.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using PrismForcedLoginApp.Core.Models;
 using PrismForcedLoginApp.Core.Services;
 using PrismForcedLoginApp.Helpers;
 using PrismForcedLoginApp.ViewModels;
-using System;
-using System.Threading.Tasks;
 using Windows.Storage;
 
 namespace PrismForcedLoginApp.Services
@@ -49,6 +50,38 @@ namespace PrismForcedLoginApp.Services
             }
 
             return await GetUserViewModelFromData(userData);
+        }
+
+        public async Task<IEnumerable<UserViewModel>> GetPeopleFromGraphApiAsync()
+        {
+            var accessToken = await _identityService.GetAccessTokenAsync();
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return null;
+            }
+
+            var peopleData = await _microsoftGraphService.GetPeopleInfoAsync(accessToken);
+            if (peopleData != null)
+            {
+                foreach (var user in peopleData.Value)
+                {
+                    user.Photo = await _microsoftGraphService.GetUserPhoto(accessToken);
+                }
+            }
+
+            return await GetUserViewModelFromData(peopleData.Value);
+        }
+
+        private async Task<IEnumerable<UserViewModel>> GetUserViewModelFromData(IEnumerable<User> usersData)
+        {
+            var people = new List<UserViewModel>();
+            foreach (var userData in usersData)
+            {
+                var user = await GetUserViewModelFromData(userData);
+                people.Add(user);
+            }
+
+            return people;
         }
 
         private async Task<UserViewModel> GetUserViewModelFromData(User userData)

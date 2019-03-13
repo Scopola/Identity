@@ -216,4 +216,8 @@
   <data name="StatusUnauthorized" xml:space="preserve">
     <value>User is unauthorized</value>
   </data>
+  <data name="Shell_GraphSample.Content" xml:space="preserve">
+    <value>GraphSample</value>
+    <comment>Navigation view item name for GraphSample</comment>
+  </data>
 </root>

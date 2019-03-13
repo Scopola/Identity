@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using PrismForcedLoginApp.ViewModels;
 
 namespace PrismForcedLoginApp.Services
@@ -8,6 +9,8 @@ namespace PrismForcedLoginApp.Services
         Task<UserViewModel> GetUserFromCacheAsync();
 
         Task<UserViewModel> GetUserFromGraphApiAsync();
+
+        Task<IEnumerable<UserViewModel>> GetPeopleFromGraphApiAsync();
 
         UserViewModel GetDefaultUserData();
     }

@@ -27,6 +27,6 @@ namespace PrismForcedLoginApp.Core.Services
 
         Task<string> GetAccessTokenAsync();
 
-        Task<bool> SilentLoginAsync();
+        Task<bool> AcquireTokenSilentAsync();
     }
 }

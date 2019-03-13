@@ -16,6 +16,7 @@ namespace ForcedLogInApp.Core.Services
 
         private const string _graphAPIEndpoint = "https://graph.microsoft.com/v1.0/";
         private const string _apiServiceMe = "me/";
+        private const string _apiServiceMePeople = "me/people";
         private const string _apiServiceMePhoto = "me/photo/$value";
 
         public MicrosoftGraphService()
@@ -49,6 +50,22 @@ namespace ForcedLogInApp.Core.Services
 
             var stream = await httpContent.ReadAsStreamAsync();
             return stream.ToBase64String();
+        }
+
+        public async Task<People> GetPeopleInfoAsync(string accessToken)
+        {
+            People people = null;
+            var httpContent = await GetDataAsync($"{_graphAPIEndpoint}{_apiServiceMePeople}", accessToken);
+            if (httpContent != null)
+            {
+                var peopleData = await httpContent.ReadAsStringAsync();
+                if (!string.IsNullOrEmpty(peopleData))
+                {
+                    people = await Json.ToObjectAsync<People>(peopleData);
+                }
+            }
+
+            return people;
         }
 
         private async Task<HttpContent> GetDataAsync(string url, string accessToken)

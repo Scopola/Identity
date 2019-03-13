@@ -2,7 +2,7 @@
 
 namespace OptionalLoginApp.Helpers
 {
-    internal class AuthenticationRequired : Attribute
+    internal class Restricted : Attribute
     {
     }
 }

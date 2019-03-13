@@ -44,6 +44,7 @@
         <winui:NavigationView.MenuItems>
             <winui:NavigationViewItem x:Uid="Shell_Main" Icon="Document" helpers:NavHelper.NavigateTo="views:MainPage" />
             <winui:NavigationViewItem x:Uid="Shell_SchemeActivationSample" Icon="Document" helpers:NavHelper.NavigateTo="views:SchemeActivationSamplePage" />
+            <winui:NavigationViewItem x:Uid="Shell_GraphSample" Icon="Document" helpers:NavHelper.NavigateTo="views:GraphSamplePage" />
         </winui:NavigationView.MenuItems>
         <winui:NavigationView.PaneFooter>
             <Button

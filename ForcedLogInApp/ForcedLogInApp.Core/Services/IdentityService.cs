@@ -5,6 +5,7 @@ using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using ForcedLogInApp.Core.Helpers;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.AppConfig;
 
 namespace ForcedLogInApp.Core.Services
 {
@@ -13,7 +14,7 @@ namespace ForcedLogInApp.Core.Services
         //// Read more about Microsoft Identity Client here
         //// https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki
         //// https://docs.microsoft.com/azure/active-directory/develop/v2-overview        
-        private readonly string[] _scopes = new string[] { "user.read" };
+        private readonly string[] _scopes = new string[] { "user.read", "people.read" };
 
         private bool _integratedAuthAvailable;
         private IPublicClientApplication _client;
@@ -29,26 +30,29 @@ namespace ForcedLogInApp.Core.Services
         public event EventHandler LoggedIn;
         public event EventHandler LoggedOut;
 
-        private const string _loginEndpoint = "https://login.microsoftonline.com";
-        private const string _commonAuthority = "common";
-        private const string _organizationsAuthority = "organizations";
-
         public void InitializeWithAadAndPersonalMsAccounts()
         {
             _integratedAuthAvailable = false;
-            _client = new PublicClientApplication(_clientId, $"{_loginEndpoint}/{_commonAuthority}/");
+            _client = PublicClientApplicationBuilder.Create(_clientId)
+                                                    .WithAuthority(AadAuthorityAudience.AzureAdAndPersonalMicrosoftAccount)
+                                                    .Build();
         }
 
         public void InitializeWithAadMultipleOrgs(bool integratedAuth = false)
         {
             _integratedAuthAvailable = integratedAuth;
-            _client = new PublicClientApplication(_clientId, $"{_loginEndpoint}/{_organizationsAuthority}/");
+            _client = PublicClientApplicationBuilder.Create(_clientId)
+                                                    .WithAuthority(AadAuthorityAudience.AzureAdMultipleOrgs)
+                                                    .Build();
+
         }
 
         public void InitializeWithAadSingleOrg(string tenant, bool integratedAuth = false)
         {
             _integratedAuthAvailable = integratedAuth;
-            _client = new PublicClientApplication(_clientId, $"{_loginEndpoint}/{tenant}/");
+            _client = PublicClientApplicationBuilder.Create(_clientId)
+                                                    .WithAuthority(AzureCloudInstance.AzurePublic, tenant)
+                                                    .Build();
         }
 
         public bool IsLoggedIn() => _authenticationResult != null;
@@ -63,7 +67,9 @@ namespace ForcedLogInApp.Core.Services
             try
             {
                 var accounts = await _client.GetAccountsAsync();
-                _authenticationResult = await _client.AcquireTokenAsync(_scopes, accounts.FirstOrDefault());
+                _authenticationResult = await _client.AcquireTokenInteractive(_scopes, null)
+                                                     .WithAccount(accounts.FirstOrDefault())
+                                                     .ExecuteAsync();
                 if (!IsAuthorized())
                 {
                     _authenticationResult = null;
@@ -124,37 +130,47 @@ namespace ForcedLogInApp.Core.Services
 
         public async Task<string> GetAccessTokenAsync()
         {
-            var silentLoginSuccess = await SilentLoginAsync();
-            if (silentLoginSuccess)
+            var acquireTokenSuccess = await AcquireTokenSilentAsync();
+            if (acquireTokenSuccess)
             {
                 return _authenticationResult.AccessToken;
             }
             else
             {
-                // SilentLoginAsync failed, reasons for failure might be that users have either signed out or changed their password on another device
-                // The session will be closed.
-                _authenticationResult = null;
-                LoggedOut?.Invoke(this, EventArgs.Empty);
-                return string.Empty;
-            }
+                try
+                {
+                    // Interactive authentication is required                
+                    var accounts = await _client.GetAccountsAsync();
+                    _authenticationResult = await _client.AcquireTokenInteractive(_scopes, null)
+                                                         .WithAccount(accounts.FirstOrDefault())
+                                                         .ExecuteAsync();
+                    return _authenticationResult.AccessToken;
+                }
+                catch (MsalException)
+                {
+                    // AcquireTokenSilent and AcquireTokenInteractive failed, the session will be closed.
+                    _authenticationResult = null;
+                    LoggedOut?.Invoke(this, EventArgs.Empty);
+                    return string.Empty;
+                }
+            }            
         }
 
-        public async Task<bool> SilentLoginAsync()
+        public async Task<bool> AcquireTokenSilentAsync()
         {
-            if (!NetworkInterface.GetIsNetworkAvailable())
-            {
-                return false;
-            }
             try
             {
                 if (_integratedAuthAvailable)
                 {
-                    _authenticationResult = await _client.AcquireTokenByIntegratedWindowsAuthAsync(_scopes);
+                    _authenticationResult = await _client.AcquireTokenByIntegratedWindowsAuth(_scopes)
+                                                         .ExecuteAsync();
                 }
                 else
                 {
                     var accounts = await _client.GetAccountsAsync();
-                    _authenticationResult = await _client.AcquireTokenSilentAsync(_scopes, accounts.FirstOrDefault());
+                    _authenticationResult = await _client.AcquireTokenSilent(_scopes)
+                                                         .WithAccount(accounts.FirstOrDefault())
+                                                         .ExecuteAsync();
                 }
 
                 return true;

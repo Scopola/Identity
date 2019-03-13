@@ -34,6 +34,7 @@
                 Edit String/en-US/Resources.resw: Add a menu item title for each page
                 -->
                 <winui:NavigationViewItem x:Uid="Shell_Main" Icon="Document" helpers:NavHelper.NavigateTo="Main" />
+                <winui:NavigationViewItem x:Uid="Shell_GraphSample" Icon="Document" helpers:NavHelper.NavigateTo="GraphSample" />
             </winui:NavigationView.MenuItems>
             <winui:NavigationView.PaneFooter>
                 <Button

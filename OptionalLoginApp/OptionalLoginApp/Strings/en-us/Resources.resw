@@ -211,4 +211,8 @@
   <data name="DialogStatusUnknownErrorContent" xml:space="preserve">
     <value>Something went wrong during the login, please try again.</value>
   </data>
+  <data name="Shell_GraphSample.Content" xml:space="preserve">
+    <value>GraphSample</value>
+    <comment>Navigation view item name for GraphSample</comment>
+  </data>
 </root>

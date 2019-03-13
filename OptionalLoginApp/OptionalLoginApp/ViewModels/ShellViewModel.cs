@@ -107,26 +107,36 @@ namespace OptionalLoginApp.ViewModels
         }
 
         private async void OnLoggedIn(object sender, EventArgs e)
-            => await GetUserDataAsync();
+        {
+            await GetUserDataAsync();
+            IsBusy = false;
+        }
 
         private async void OnLoggedOut(object sender, EventArgs e)
         {
             await GetUserDataAsync();
-
             foreach (var backStack in NavigationService.Frame.BackStack)
             {
-                var authenticationRequired = Attribute.GetCustomAttributes(backStack.SourcePageType, typeof(AuthenticationRequired)).Any();
-                if (authenticationRequired)
+                var isRestricted = Attribute.IsDefined(backStack.SourcePageType, typeof(Restricted));
+                if (isRestricted)
                 {
                     NavigationService.Frame.BackStack.Remove(backStack);
                 }
             }
+
+            var currentPage = NavigationService.Frame.Content as Page;
+            var isCurrentPageRestricted = Attribute.IsDefined(currentPage.GetType(), typeof(Restricted));
+            if (isCurrentPageRestricted)
+            {
+                NavigationService.GoBack();
+            }            
         }
 
         private async Task GetUserDataAsync()
         {
             IsLoggedIn = _identityService.IsLoggedIn();
             IsAuthorized = IsLoggedIn && _identityService.IsAuthorized();
+
             if (IsLoggedIn)
             {
                 User = await _userDataService.GetUserFromCacheAsync();
@@ -156,7 +166,6 @@ namespace OptionalLoginApp.ViewModels
                 {
                     await AuthenticationHelper.ShowLoginErrorAsync(loginResult);
                 }
-                IsBusy = false;
             }
         }
 

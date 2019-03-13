@@ -19,17 +19,18 @@ namespace OptionalLoginApp.ViewModels
         private bool _isLoggedIn;
         private bool _isBusy;
         private UserViewModel _user;
-        private ElementTheme _elementTheme = ThemeSelectorService.Theme;        
+        private ElementTheme _elementTheme = ThemeSelectorService.Theme;
 
         private string _versionDescription;
         private ICommand _switchThemeCommand;
-        private RelayCommand _logInOutCommand;
+        private RelayCommand _logInCommand;
+        private RelayCommand _logOutCommand;
 
         public ElementTheme ElementTheme
         {
             get { return _elementTheme; }
             set { Set(ref _elementTheme, value); }
-        }        
+        }
 
         public string VersionDescription
         {
@@ -49,7 +50,8 @@ namespace OptionalLoginApp.ViewModels
             set
             {
                 Set(ref _isBusy, value);
-                LogInOutCommand.OnCanExecuteChanged();
+                LogInCommand.OnCanExecuteChanged();
+                LogOutCommand.OnCanExecuteChanged();
             }
         }
 
@@ -75,9 +77,11 @@ namespace OptionalLoginApp.ViewModels
         {
             get { return _user; }
             set { Set(ref _user, value); }
-        }        
+        }
 
-        public RelayCommand LogInOutCommand => _logInOutCommand ?? (_logInOutCommand = new RelayCommand(OnLogInOut));
+        public RelayCommand LogInCommand => _logInCommand ?? (_logInCommand = new RelayCommand(OnLogIn, () => !IsBusy));
+
+        public RelayCommand LogOutCommand => _logOutCommand ?? (_logOutCommand = new RelayCommand(OnLogOut, () => !IsBusy));
 
         public SettingsViewModel()
         {
@@ -86,7 +90,7 @@ namespace OptionalLoginApp.ViewModels
         public async Task InitializeAsync()
         {
             _identityService.LoggedIn += OnLoggedIn;
-            _identityService.LoggedOut += OnLoggedOut;
+            _identityService.LoggedOut += OnLoggeOut;
             VersionDescription = GetVersionDescription();
             await GetUserDataAsync();
         }
@@ -94,14 +98,20 @@ namespace OptionalLoginApp.ViewModels
         public void UnregisterEvents()
         {
             _identityService.LoggedIn -= OnLoggedIn;
-            _identityService.LoggedOut -= OnLoggedOut;
+            _identityService.LoggedOut -= OnLoggeOut;
         }
 
         private async void OnLoggedIn(object sender, EventArgs e)
-            => await GetUserDataAsync();
+        {
+            await GetUserDataAsync();
+            IsBusy = false;
+        }
 
-        private async void OnLoggedOut(object sender, EventArgs e)
-            => await GetUserDataAsync();
+        private async void OnLoggeOut(object sender, EventArgs e)
+        {
+            await GetUserDataAsync();
+            IsBusy = false;
+        }
 
         private async Task GetUserDataAsync()
         {
@@ -115,7 +125,6 @@ namespace OptionalLoginApp.ViewModels
                     User = _userDataService.GetDefaultUserData();
                 }
             }
-
         }
 
         private string GetVersionDescription()
@@ -128,23 +137,20 @@ namespace OptionalLoginApp.ViewModels
             return $"{appName} - {version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
         }
 
-        private async void OnLogInOut()
+        private async void OnLogIn()
         {
             IsBusy = true;
-            if (IsLoggedIn)
+            var loginResult = await _identityService.LoginAsync();
+            if (loginResult != LoginResultType.Success)
             {
-                await _identityService.LogoutAsync();
+                await AuthenticationHelper.ShowLoginErrorAsync(loginResult);
             }
-            else
-            {
-                var loginResult = await _identityService.LoginAsync();
-                if (loginResult != LoginResultType.Success)
-                {
-                    await AuthenticationHelper.ShowLoginErrorAsync(loginResult);
-                }
-            }
-            IsBusy = false;
-            
+        }
+
+        private async void OnLogOut()
+        {
+            IsBusy = true;
+            await _identityService.LogoutAsync();
         }
     }
 }

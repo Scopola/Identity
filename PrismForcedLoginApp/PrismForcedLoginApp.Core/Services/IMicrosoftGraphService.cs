@@ -8,5 +8,7 @@ namespace PrismForcedLoginApp.Core.Services
         Task<User> GetUserInfoAsync(string accessToken);
 
         Task<string> GetUserPhoto(string accessToken);
+
+        Task<People> GetPeopleInfoAsync(string accessToken);
     }
 }

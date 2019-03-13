@@ -227,10 +227,15 @@
     <Compile Include="Services\UserActivityData.cs" />
     <Compile Include="Services\UserActivityService.cs" />
     <Compile Include="Services\UserActivityService.Sample.cs" />
+    <Compile Include="ViewModels\GraphSampleViewModel.cs" />
     <Compile Include="ViewModels\SchemeActivationSampleViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Views\GraphSamplePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\SchemeActivationSamplePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -242,6 +247,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ViewModels\UserViewModel.cs" />
+    <Compile Include="Views\GraphSamplePage.xaml.cs">
+      <DependentUpon>GraphSamplePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SchemeActivationSamplePage.xaml.cs">
       <DependentUpon>SchemeActivationSamplePage.xaml</DependentUpon>
     </Compile>

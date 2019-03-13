@@ -6,7 +6,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace OptionalLoginApp.Views
 {
-    [AuthenticationRequired]
+    [Restricted]
     public sealed partial class RestrictedContentPage : Page
     {
         public RestrictedContentViewModel ViewModel { get; } = new RestrictedContentViewModel();
