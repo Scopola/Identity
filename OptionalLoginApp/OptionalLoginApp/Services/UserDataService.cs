@@ -14,37 +14,68 @@ namespace OptionalLoginApp.Services
     {
         private const string _userSettingsKey = "IdentityUser";
 
-        private IdentityService _identityService => Singleton<IdentityService>.Instance;
-        private MicrosoftGraphService _microsoftGraphService => Singleton<MicrosoftGraphService>.Instance;
+        private UserViewModel _user;
+
+        private IdentityService IdentityService => Singleton<IdentityService>.Instance;
+
+        private MicrosoftGraphService MicrosoftGraphService => Singleton<MicrosoftGraphService>.Instance;
+
+        public event EventHandler<UserViewModel> UserDataUpdated;
 
         public UserDataService()
         {
-            _identityService.LoggedOut += OnLoggedOut;
+        }
+
+        public void Initialize()
+        {
+            IdentityService.LoggedIn += OnLoggedIn;
+            IdentityService.LoggedOut += OnLoggedOut;
+        }
+
+        public async Task<UserViewModel> GetUserAsync()
+        {
+            if (_user == null)
+            {
+                _user = await GetUserFromCacheAsync();
+                if (_user == null)
+                {
+                    _user = GetDefaultUserData();
+                }
+            }
+
+            return _user;
+        }
+
+        private async void OnLoggedIn(object sender, EventArgs e)
+        {
+            _user = await GetUserFromGraphApiAsync();
+            UserDataUpdated?.Invoke(this, _user);
         }
 
         private async void OnLoggedOut(object sender, EventArgs e)
         {
+            _user = null;
             await ApplicationData.Current.LocalFolder.SaveAsync<User>(_userSettingsKey, null);
         }
 
-        public async Task<UserViewModel> GetUserFromCacheAsync()
+        private async Task<UserViewModel> GetUserFromCacheAsync()
         {
             var cacheData = await ApplicationData.Current.LocalFolder.ReadAsync<User>(_userSettingsKey);
             return await GetUserViewModelFromData(cacheData);
         }
 
-        public async Task<UserViewModel> GetUserFromGraphApiAsync()
+        private async Task<UserViewModel> GetUserFromGraphApiAsync()
         {
-            var accessToken = await _identityService.GetAccessTokenAsync();
+            var accessToken = await IdentityService.GetAccessTokenAsync();
             if (string.IsNullOrEmpty(accessToken))
             {
                 return null;
             }
 
-            var userData = await _microsoftGraphService.GetUserInfoAsync(accessToken);
+            var userData = await MicrosoftGraphService.GetUserInfoAsync(accessToken);
             if (userData != null)
             {
-                userData.Photo = await _microsoftGraphService.GetUserPhoto(accessToken);
+                userData.Photo = await MicrosoftGraphService.GetUserPhoto(accessToken);
                 await ApplicationData.Current.LocalFolder.SaveAsync(_userSettingsKey, userData);
             }
 
@@ -53,18 +84,18 @@ namespace OptionalLoginApp.Services
 
         public async Task<IEnumerable<UserViewModel>> GetPeopleFromGraphApiAsync()
         {
-            var accessToken = await _identityService.GetAccessTokenAsync();
+            var accessToken = await IdentityService.GetAccessTokenAsync();
             if (string.IsNullOrEmpty(accessToken))
             {
                 return null;
             }
 
-            var peopleData = await _microsoftGraphService.GetPeopleInfoAsync(accessToken);
+            var peopleData = await MicrosoftGraphService.GetPeopleInfoAsync(accessToken);
             if (peopleData != null)
             {
                 foreach (var user in peopleData.Value)
                 {
-                    user.Photo = await _microsoftGraphService.GetUserPhoto(accessToken);
+                    user.Photo = await MicrosoftGraphService.GetUserPhoto(accessToken);
                 }
             }
 
@@ -102,11 +133,11 @@ namespace OptionalLoginApp.Services
             };
         }
 
-        internal UserViewModel GetDefaultUserData()
+        private UserViewModel GetDefaultUserData()
         {
             return new UserViewModel()
             {
-                Name = _identityService.GetAccountUserName(),
+                Name = IdentityService.GetAccountUserName(),
                 Photo = ImageHelper.ImageFromAssetsFile("DefaultIcon.png")
             };
         }

@@ -18,7 +18,10 @@ namespace OptionalLoginApp.Services
         private readonly App _app;
         private readonly Lazy<UIElement> _shell;
         private readonly Type _defaultNavItem;
-        private IdentityService _identityService => Singleton<IdentityService>.Instance;
+
+        private IdentityService IdentityService => Singleton<IdentityService>.Instance;
+
+        private UserDataService UserDataService => Singleton<UserDataService>.Instance;
 
         public ActivationService(App app, Type defaultNavItem, Lazy<UIElement> shell = null)
         {
@@ -33,9 +36,9 @@ namespace OptionalLoginApp.Services
             {
                 // Initialize things like registering background task before the app is loaded
                 await InitializeAsync();
-
-                _identityService.InitializeWithAadAndPersonalMsAccounts();
-                await _identityService.AcquireTokenSilentAsync();
+                UserDataService.Initialize();
+                IdentityService.InitializeWithAadAndPersonalMsAccounts();
+                await IdentityService.AcquireTokenSilentAsync();
 
                 // Do not repeat app initialization when the Window already has content,
                 // just ensure that the window is active

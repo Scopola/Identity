@@ -8,7 +8,7 @@ namespace OptionalLoginApp.ViewModels
 {
     public class GraphSampleViewModel : Observable
     {
-        private UserDataService _userDataService => Singleton<UserDataService>.Instance;
+        private UserDataService UserDataService => Singleton<UserDataService>.Instance;
 
         public ObservableCollection<UserViewModel> People { get; } = new ObservableCollection<UserViewModel>();
 
@@ -18,7 +18,7 @@ namespace OptionalLoginApp.ViewModels
 
         public async Task LoadDataAsync()
         {
-            var apiData = await _userDataService.GetPeopleFromGraphApiAsync();
+            var apiData = await UserDataService.GetPeopleFromGraphApiAsync();
             if (apiData != null)
             {
                 foreach (var user in apiData)

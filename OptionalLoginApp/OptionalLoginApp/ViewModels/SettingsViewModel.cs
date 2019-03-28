@@ -13,8 +13,9 @@ namespace OptionalLoginApp.ViewModels
 {
     public class SettingsViewModel : Observable
     {
-        private UserDataService _userDataService => Singleton<UserDataService>.Instance;
-        private IdentityService _identityService => Singleton<IdentityService>.Instance;
+        private UserDataService UserDataService => Singleton<UserDataService>.Instance;
+
+        private IdentityService IdentityService => Singleton<IdentityService>.Instance;
 
         private bool _isLoggedIn;
         private bool _isBusy;
@@ -89,42 +90,37 @@ namespace OptionalLoginApp.ViewModels
 
         public async Task InitializeAsync()
         {
-            _identityService.LoggedIn += OnLoggedIn;
-            _identityService.LoggedOut += OnLoggeOut;
+            IdentityService.LoggedIn += OnLoggedIn;
+            IdentityService.LoggedOut += OnLoggeOut;
             VersionDescription = GetVersionDescription();
-            await GetUserDataAsync();
+            UserDataService.UserDataUpdated += OnUserDataUpdated;
+            IsLoggedIn = IdentityService.IsLoggedIn();
+            User = await UserDataService.GetUserAsync();
         }
 
         public void UnregisterEvents()
         {
-            _identityService.LoggedIn -= OnLoggedIn;
-            _identityService.LoggedOut -= OnLoggeOut;
+            IdentityService.LoggedIn -= OnLoggedIn;
+            IdentityService.LoggedOut -= OnLoggeOut;
+            UserDataService.UserDataUpdated -= OnUserDataUpdated;
         }
 
-        private async void OnLoggedIn(object sender, EventArgs e)
+        private void OnUserDataUpdated(object sender, UserViewModel user)
         {
-            await GetUserDataAsync();
+            User = user;
+        }
+
+        private void OnLoggedIn(object sender, EventArgs e)
+        {
+            IsLoggedIn = true;
             IsBusy = false;
         }
 
-        private async void OnLoggeOut(object sender, EventArgs e)
+        private void OnLoggeOut(object sender, EventArgs e)
         {
-            await GetUserDataAsync();
+            User = null;
+            IsLoggedIn = false;
             IsBusy = false;
-        }
-
-        private async Task GetUserDataAsync()
-        {
-            IsLoggedIn = _identityService.IsLoggedIn();
-            if (IsLoggedIn)
-            {
-                User = await _userDataService.GetUserFromCacheAsync();
-                User = await _userDataService.GetUserFromGraphApiAsync();
-                if (User == null)
-                {
-                    User = _userDataService.GetDefaultUserData();
-                }
-            }
         }
 
         private string GetVersionDescription()
@@ -140,7 +136,7 @@ namespace OptionalLoginApp.ViewModels
         private async void OnLogIn()
         {
             IsBusy = true;
-            var loginResult = await _identityService.LoginAsync();
+            var loginResult = await IdentityService.LoginAsync();
             if (loginResult != LoginResultType.Success)
             {
                 await AuthenticationHelper.ShowLoginErrorAsync(loginResult);
@@ -150,7 +146,7 @@ namespace OptionalLoginApp.ViewModels
         private async void OnLogOut()
         {
             IsBusy = true;
-            await _identityService.LogoutAsync();
+            await IdentityService.LogoutAsync();
         }
     }
 }

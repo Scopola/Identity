@@ -33,8 +33,9 @@ namespace OptionalLoginApp.ViewModels
         private ICommand _itemInvokedCommand;
         private RelayCommand _userProfileCommand;
 
-        private IdentityService _identityService => Singleton<IdentityService>.Instance;
-        private UserDataService _userDataService => Singleton<UserDataService>.Instance;
+        private IdentityService IdentityService => Singleton<IdentityService>.Instance;
+
+        private UserDataService UserDataService => Singleton<UserDataService>.Instance;
 
         public bool IsBackEnabled
         {
@@ -93,8 +94,9 @@ namespace OptionalLoginApp.ViewModels
             NavigationService.Frame = frame;
             NavigationService.Navigated += Frame_Navigated;
             _navigationView.BackRequested += OnBackRequested;
-            _identityService.LoggedIn += OnLoggedIn;
-            _identityService.LoggedOut += OnLoggedOut;
+            IdentityService.LoggedIn += OnLoggedIn;
+            IdentityService.LoggedOut += OnLoggedOut;
+            UserDataService.UserDataUpdated += OnUserDataUpdated;
         }
 
         private async void OnLoaded()
@@ -103,18 +105,27 @@ namespace OptionalLoginApp.ViewModels
             // More info on tracking issue https://github.com/Microsoft/microsoft-ui-xaml/issues/8
             _keyboardAccelerators.Add(_altLeftKeyboardAccelerator);
             _keyboardAccelerators.Add(_backKeyboardAccelerator);
-            await GetUserDataAsync();
+            IsLoggedIn = IdentityService.IsLoggedIn();
+            IsAuthorized = IsLoggedIn && IdentityService.IsAuthorized();
+            User = await UserDataService.GetUserAsync();
         }
 
-        private async void OnLoggedIn(object sender, EventArgs e)
+        private void OnUserDataUpdated(object sender, UserViewModel user)
         {
-            await GetUserDataAsync();
+            User = user;
+        }
+
+        private void OnLoggedIn(object sender, EventArgs e)
+        {
+            IsLoggedIn = true;
+            IsAuthorized = IsLoggedIn && IdentityService.IsAuthorized();
             IsBusy = false;
         }
 
-        private async void OnLoggedOut(object sender, EventArgs e)
+        private void OnLoggedOut(object sender, EventArgs e)
         {
-            await GetUserDataAsync();
+            User = null;
+            IsLoggedIn = false;
             foreach (var backStack in NavigationService.Frame.BackStack)
             {
                 var isRestricted = Attribute.IsDefined(backStack.SourcePageType, typeof(Restricted));
@@ -132,26 +143,6 @@ namespace OptionalLoginApp.ViewModels
             }            
         }
 
-        private async Task GetUserDataAsync()
-        {
-            IsLoggedIn = _identityService.IsLoggedIn();
-            IsAuthorized = IsLoggedIn && _identityService.IsAuthorized();
-
-            if (IsLoggedIn)
-            {
-                User = await _userDataService.GetUserFromCacheAsync();
-                User = await _userDataService.GetUserFromGraphApiAsync();
-                if (User == null)
-                {
-                    User = _userDataService.GetDefaultUserData();
-                }
-            }
-            else
-            {
-                User = null;
-            }
-        }
-
         private async void OnUserProfile()
         {
             if (IsLoggedIn)
@@ -161,7 +152,7 @@ namespace OptionalLoginApp.ViewModels
             else
             {
                 IsBusy = true;
-                var loginResult = await _identityService.LoginAsync();
+                var loginResult = await IdentityService.LoginAsync();
                 if (loginResult != LoginResultType.Success)
                 {
                     await AuthenticationHelper.ShowLoginErrorAsync(loginResult);
