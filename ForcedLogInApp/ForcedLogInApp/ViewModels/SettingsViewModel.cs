@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using ForcedLogInApp.Core.Helpers;
 using ForcedLogInApp.Core.Services;
@@ -11,8 +12,9 @@ namespace ForcedLogInApp.ViewModels
 {
     public class SettingsViewModel : Observable
     {
-        private UserDataService _userDataService => Singleton<UserDataService>.Instance;
-        private IdentityService _identityService => Singleton<IdentityService>.Instance;
+        private UserDataService UserDataService => Singleton<UserDataService>.Instance;
+
+        private IdentityService IdentityService => Singleton<IdentityService>.Instance;
 
         private ElementTheme _elementTheme = ThemeSelectorService.Theme;
         private UserViewModel _user;
@@ -70,7 +72,8 @@ namespace ForcedLogInApp.ViewModels
         public async Task InitializeAsync()
         {
             VersionDescription = GetVersionDescription();
-            User = await _userDataService.GetUserFromCacheAsync();
+            UserDataService.UserDataUpdated += OnUserDataUpdated;
+            User = await UserDataService.GetUserAsync();
         }
 
         private string GetVersionDescription()
@@ -83,9 +86,25 @@ namespace ForcedLogInApp.ViewModels
             return $"{appName} - {version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
         }
 
+        public void UnregisterEvents()
+        {
+            IdentityService.LoggedOut -= OnLoggeOut;
+            UserDataService.UserDataUpdated -= OnUserDataUpdated;
+        }
+
+        private void OnUserDataUpdated(object sender, UserViewModel user)
+        {
+            User = user;
+        }
+
         private async void OnLogout()
         {
-            await _identityService.LogoutAsync();
+            await IdentityService.LogoutAsync();
+        }
+
+        private void OnLoggeOut(object sender, EventArgs e)
+        {
+            UnregisterEvents();
         }
     }
 }

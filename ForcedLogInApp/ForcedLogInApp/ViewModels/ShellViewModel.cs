@@ -30,8 +30,9 @@ namespace ForcedLogInApp.ViewModels
         private ICommand _itemInvokedCommand;
         private UserViewModel _user;
 
-        private IdentityService _identityService => Singleton<IdentityService>.Instance;
-        private UserDataService _userDataService => Singleton<UserDataService>.Instance;
+        private IdentityService IdentityService => Singleton<IdentityService>.Instance;
+
+        private UserDataService UserDataService => Singleton<UserDataService>.Instance;
 
         public bool IsBackEnabled
         {
@@ -68,14 +69,16 @@ namespace ForcedLogInApp.ViewModels
             NavigationService.Frame = frame;
             NavigationService.Navigated += Frame_Navigated;
             _navigationView.BackRequested += OnBackRequested;
-            _identityService.LoggedOut += OnLoggedOut;
+            IdentityService.LoggedOut += OnLoggedOut;
+            UserDataService.UserDataUpdated += OnUserDataUpdated;
         }
 
         private void OnLoggedOut(object sender, EventArgs e)
         {
             NavigationService.Navigated -= Frame_Navigated;
             _navigationView.BackRequested -= OnBackRequested;
-            _identityService.LoggedOut -= OnLoggedOut;
+            UserDataService.UserDataUpdated -= OnUserDataUpdated;
+            IdentityService.LoggedOut -= OnLoggedOut;
         }
 
         private async void OnLoaded()
@@ -84,12 +87,12 @@ namespace ForcedLogInApp.ViewModels
             // More info on tracking issue https://github.com/Microsoft/microsoft-ui-xaml/issues/8
             _keyboardAccelerators.Add(_altLeftKeyboardAccelerator);
             _keyboardAccelerators.Add(_backKeyboardAccelerator);
-            User = await _userDataService.GetUserFromCacheAsync();
-            User = await _userDataService.GetUserFromGraphApiAsync();
-            if (User == null)
-            {
-                User = _userDataService.GetDefaultUserData();
-            }
+            User = await UserDataService.GetUserAsync();
+        }
+
+        private void OnUserDataUpdated(object sender, UserViewModel user)
+        {
+            User = user;
         }
 
         private void OnItemInvoked(WinUI.NavigationViewItemInvokedEventArgs args)

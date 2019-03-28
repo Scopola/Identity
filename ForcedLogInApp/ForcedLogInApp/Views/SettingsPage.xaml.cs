@@ -20,5 +20,11 @@ namespace ForcedLogInApp.Views
         {
             await ViewModel.InitializeAsync();
         }
+
+        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+        {
+            base.OnNavigatingFrom(e);
+            ViewModel.UnregisterEvents();
+        }
     }
 }

@@ -21,14 +21,17 @@ namespace ForcedLogInApp.Services
         private Lazy<UIElement> _shell;
 
         private object _lastActivationArgs;
-        private IdentityService _identityService => Singleton<IdentityService>.Instance;
+
+        private IdentityService IdentityService => Singleton<IdentityService>.Instance;
+
+        private UserDataService UserDataService => Singleton<UserDataService>.Instance;
 
         public ActivationService(App app, Type defaultNavItem, Lazy<UIElement> shell = null)
         {
             _app = app;
             _shell = shell;
             _defaultNavItem = defaultNavItem;
-            _identityService.LoggedIn += OnLoggedIn;
+            IdentityService.LoggedIn += OnLoggedIn;
         }
 
         public async Task ActivateAsync(object activationArgs)
@@ -37,9 +40,10 @@ namespace ForcedLogInApp.Services
             {
                 // Initialize things like registering background task before the app is loaded
                 await InitializeAsync();
-                _identityService.InitializeWithAadAndPersonalMsAccounts();
-                var silentLoginSuccess = await _identityService.AcquireTokenSilentAsync();
-                if (!silentLoginSuccess || !_identityService.IsAuthorized())
+                UserDataService.Initialize();
+                IdentityService.InitializeWithAadAndPersonalMsAccounts();
+                var silentLoginSuccess = await IdentityService.AcquireTokenSilentAsync();
+                if (!silentLoginSuccess || !IdentityService.IsAuthorized())
                 {
                     await RedirectLoginPageAsync();
                 }
@@ -53,7 +57,7 @@ namespace ForcedLogInApp.Services
                 }
             }            
 
-            if (_identityService.IsLoggedIn())
+            if (IdentityService.IsLoggedIn())
             {
                 await HandleActivationAsync(activationArgs);
             }
